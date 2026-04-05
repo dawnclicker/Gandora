@@ -528,7 +528,7 @@
     <issue
         id="PluralsCandidate"
         message="Formatting %d followed by words (&quot;files&quot;): This should probably be a plural rather than a string"
-        errorLine1="    &lt;string name=&quot;migration_running_progress&quot;>%d of %d files processed&lt;/string>"
+        errorLine1="    &lt;string name=&quot;migration_running_progress&quot;>%1$d of %2$d files processed&lt;/string>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
