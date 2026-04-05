@@ -12,3 +12,4 @@
 .kotlin/
 
 kls_database.db
+.env
