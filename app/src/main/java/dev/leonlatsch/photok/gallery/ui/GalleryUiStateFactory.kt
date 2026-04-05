@@ -18,6 +18,7 @@ package dev.leonlatsch.photok.gallery.ui
 
 import dev.leonlatsch.photok.sort.domain.Sort
 import android.net.Uri
+import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.gallery.components.PhotoTile
 import dev.leonlatsch.photok.model.database.entity.Photo
 import javax.inject.Inject
@@ -28,6 +29,7 @@ class GalleryUiStateFactory @Inject constructor() {
         showAlbumSelectionDialog: Boolean,
         sort: Sort,
         showFavoritesOnly: Boolean,
+        folderTiles: List<AlbumItem> = emptyList(),
     ): GalleryUiState {
         return if (photos.isEmpty()) {
             GalleryUiState.Empty
@@ -37,9 +39,11 @@ class GalleryUiStateFactory @Inject constructor() {
                     PhotoTile(
                         fileName = it.fileName,
                         type = it.type,
-                        uuid = it.uuid
+                        uuid = it.uuid,
+                        isFavorite = it.isFavorite,
                     )
                 },
+                folderTiles = if (showFavoritesOnly) emptyList() else folderTiles,
                 showAlbumSelectionDialog = showAlbumSelectionDialog,
                 sort = sort,
                 showFavoritesOnly = showFavoritesOnly,

@@ -6,7 +6,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
-
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -72,6 +71,7 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
+/** Gandora: obsidian surfaces and dragon red accent (Color.kt). */
 @Composable
 fun AppTheme(
   useDarkTheme: Boolean = isSystemInDarkTheme(),

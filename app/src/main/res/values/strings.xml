@@ -41,7 +41,7 @@
 
     <!-- IMPORT -->
     <string name="import_importing">Importing File(s)</string>
-    <string name="import_permission_rationale">Photok needs to access your storage, to import files.</string>
+    <string name="import_permission_rationale">Gandora needs to access your storage, to import files.</string>
     <string name="import_sharted_question">Do you want to import %1$d file(s)?</string>
 
     <!-- SETUP -->
@@ -85,7 +85,7 @@
     <string name="import_menu_new_files_title">Import new files</string>
     <string name="import_menu_new_files_description">Import photos and videos from your gallery.</string>
     <string name="import_menu_restore_title">Restore a backup</string>
-    <string name="import_menu_restore_description">Restore a Photok backup. Files will be added to your current files.</string>
+    <string name="import_menu_restore_description">Restore a Gandora backup. Files will be added to your current files.</string>
     <string name="import_menu_delete_warning">Imported files will be deleted</string>
     <string name="import_menu_album_tooltip">Files will be added to \"%s\" after importing</string>
 
@@ -131,7 +131,7 @@
     <string name="export_are_you_sure_this">Are you sure, you want to <b>export</b> this file to your gallery?</string>
     <string name="export_and_delete_are_you_sure_this">Are you sure, you want to <b>export</b> this file to your gallery and delete it?</string>
     <string name="export_exporting">Exporting file(s)…</string>
-    <string name="export_permission_rationale">Photok needs to access your storage, to export files.</string>
+    <string name="export_permission_rationale">Gandora needs to access your storage, to export files.</string>
     <string name="export_finished">Exported</string>
     <string name="export_and_delete_finished">Exported and deleted</string>
 
@@ -165,7 +165,7 @@
     <string name="settings_security_change_password_title">Change Password</string>
     <string name="settings_security_change_password_summary">Change your password</string>
     <string name="settings_security_biometric_title">Biometric Unlock</string>
-    <string name="settings_security_biometric_summary">Unlock Photok with biometric authentication.</string>
+    <string name="settings_security_biometric_summary">Unlock Gandora with biometric authentication.</string>
     <string name="settings_security_biometric_not_available">Biometric Unlock is not available</string>
     <string name="settings_security_timeout_title">Automatic Lock Timeout</string>
     <string name="settings_security_timeout_summary">Automatic lock after given time in background</string>
@@ -176,8 +176,8 @@
     <string name="settings_security_timeout_ten_minute">10 Minutes</string>
     <string name="settings_security_timeout_never">Never</string>
     <string name="settings_security_launch_code_title">Secret Launch Code</string>
-    <string name="settings_security_launch_code_summary">Secret code to launch Photok from the phone dialer.</string>
-    <string name="settings_security_launch_code_message">Enter *#*#[your code]#*#* in phone dialer to launch Photok.</string>
+    <string name="settings_security_launch_code_summary">Secret code to launch Gandora from the phone dialer.</string>
+    <string name="settings_security_launch_code_message">Enter *#*#[your code]#*#* in phone dialer to launch Gandora.</string>
     <string name="settings_security_launch_code_prefix">*#*#</string>
     <string name="settings_security_launch_code_suffix">#*#*</string>
     <string name="settings_security_hide_app_title">Hide App</string>
@@ -198,25 +198,25 @@
     <string name="settings_other_title">Other</string>
     <string name="settings_other_feedback_title">Feedback</string>
     <string name="settings_other_feedback_summary">Send me an email with feedback</string>
-    <string name="settings_other_feedback_mail_subject">Feedback to Photok</string>
-    <string name="settings_other_feedback_mail_body">Write a feedback about Photok :)</string>
+    <string name="settings_other_feedback_mail_subject">Feedback to Gandora</string>
+    <string name="settings_other_feedback_mail_body">Write a feedback about Gandora :)</string>
     <string name="settings_other_feedback_mail_emailaddress">photok@leonlatsch.dev</string>
     <string name="settings_other_donate_title">Donate</string>
-    <string name="settings_other_donate_summary">Support the development of Photok</string>
+    <string name="settings_other_donate_summary">Support the development of Gandora</string>
     <string name="settings_other_donate_url">https://ko-fi.com/leonlatsch</string>
     <string name="settings_other_sourcecode_title">Source Code</string>
-    <string name="settings_other_sourcecode_summary">Contribute to Photok</string>
+    <string name="settings_other_sourcecode_summary">Contribute to Gandora</string>
     <string name="settings_other_sourcecode_url">https://github.com/leonlatsch/Photok</string>
     <string name="settings_other_credits_title">Credits</string>
     <string name="settings_other_credits_summary">Contributors and credits</string>
     <string name="settings_other_telemetry_title">Data collection</string>
     <string name="settings_other_telemetry_summary">Manage collection of usage data</string>
     <string name="settings_other_about_title">About</string>
-    <string name="settings_other_about_summary">Information about Photok</string>
+    <string name="settings_other_about_summary">Information about Gandora</string>
 
     <!-- CREDITS -->
     <string name="credits_contributors_title">Contributors</string>
-    <string name="credits_contributors_hint">Visit Photok at GitHub to see all contributors</string>
+    <string name="credits_contributors_hint">Visit Gandora at GitHub to see all contributors</string>
     <string name="credits_icons_title">Icons</string>
 
     <!-- CHANGE PASSWORD -->
@@ -234,15 +234,15 @@
     <string name="settings_security_check_password_title">Verify Password</string>
 
     <!-- HIDE APP -->
-    <string name="hide_app_title_hide">Hide Photok</string>
-    <string name="hide_app_title_show">Show Photok</string>
-    <string name="hide_app_status_label">Photok is currently:</string>
+    <string name="hide_app_title_hide">Hide Gandora</string>
+    <string name="hide_app_title_show">Show Gandora</string>
+    <string name="hide_app_status_label">Gandora is currently:</string>
     <string name="hide_app_status_visible">VISIBLE</string>
     <string name="hide_app_status_hidden">HIDDEN</string>
     <string name="hide_app_app_name_stealth">Phone</string>
-    <string name="hide_app_confirm_hide">Do you really want to hide Photok?</string>
-    <string name="hide_app_confirm_show">Do you want to show Photok again?</string>
-    <string name="hide_app_hint">Once hidden, Photok can only be launched from the phone dial pad, with your secret launch code.</string>
+    <string name="hide_app_confirm_hide">Do you really want to hide Gandora?</string>
+    <string name="hide_app_confirm_show">Do you want to show Gandora again?</string>
+    <string name="hide_app_hint">Once hidden, Gandora can only be launched from the phone dial pad, with your secret launch code.</string>
     <string name="hide_app_hint_current_code">Current launch code:</string>
 
     <!-- ON BOARDING -->
@@ -277,12 +277,12 @@
 
     <!-- Recovery Menu -->
     <string name="recovery_subtitle">Recovery Menu</string>
-    <string name="recovery_menu_item_open_photok">Open Photok</string>
+    <string name="recovery_menu_item_open_photok">Open Gandora</string>
     <string name="recovery_subtitle_reset_hide_app">Reset Hide App Setting</string>
 
     <!-- Migration -->
     <string name="migration_initial_title_welcome">Welcome to</string>
-    <string name="migration_initial_explaination">This version of Photok introduces a new encryption method. In order to continue to your gallery, there is a migration required.</string>
+    <string name="migration_initial_explaination">This version of Gandora introduces a new encryption method. In order to continue to your gallery, there is a migration required.</string>
     <string name="migration_initial_button">Get started</string>
 
     <string name="migration_initial_stage_backup_checklist">Backup your data</string>
@@ -313,14 +313,14 @@
 
 
     <!-- Biometric -->
-    <string name="biometric_unlock_title">Unlock Photok</string>
+    <string name="biometric_unlock_title">Unlock Gandora</string>
     <string name="biometric_unlock_subtitle">Verify your identity to unlock</string>
-    <string name="biometric_unlock_cancel">Use Photok password</string>
+    <string name="biometric_unlock_cancel">Use Gandora password</string>
 
     <string name="biometric_unlock_setup_title">Enable biometric unlock</string>
     <string name="biometric_unlock_setup_subtitle">To enable biometric unlock, confirm your identity</string>
 
-    <string name="biometric_unlock_error">Biometric unlock failed. Use your Photok password.</string>
+    <string name="biometric_unlock_error">Biometric unlock failed. Use your Gandora password.</string>
     <string name="biometric_unlock_hint_button">Unlock with biometrics</string>
 
     <!-- Sorting -->
@@ -344,8 +344,8 @@
     <string name="video_player_unmute">Unmute</string>
     
     <!-- Telemetry -->
-    <string name="telemetry_sheet_title">Help improve Photok</string>
-    <string name="telemetry_sheet_paragraph_1">Photok can optionally send anonymous usage statistics to help improve the app.</string>
+    <string name="telemetry_sheet_title">Help improve Gandora</string>
+    <string name="telemetry_sheet_paragraph_1">Gandora can optionally send anonymous usage statistics to help improve the app.</string>
     <string name="telemetry_sheet_paragraph_2">The data processed is completely anonymized and does not allow any conclusions to be drawn about personal information.</string>
     <string name="telemetry_sheet_paragraph_3">Sending anonymous usage data is optional and can be turned off at any time in the settings.</string>
     <string name="telemetry_learn_more">Learn more</string>

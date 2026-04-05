@@ -23,6 +23,7 @@ data class PhotoTile(
     val fileName: String,
     val type: PhotoType,
     val uuid: String,
+    val isFavorite: Boolean = false,
 ) {
     val internalThumbnailFileName = internalThumbnailFileName(uuid)
 }

@@ -120,9 +120,9 @@ class LegacyEncryptionMigrationViewModel @Inject constructor(
             is LegacyEncryptionMigrationUiEvent.SendErrorReport -> {
                 val email = event.context.getString(R.string.settings_other_feedback_mail_emailaddress)
                 val subject =
-                    "Photok Migration Error Report (App ${BuildConfig.VERSION_NAME} / Android ${Build.VERSION.RELEASE})"
+                    "Gandora Migration Error Report (App ${BuildConfig.VERSION_NAME} / Android ${Build.VERSION.RELEASE})"
 
-                val text = "Photok error migration report.\n\nPlease don't change the content below.\n\n ${event.error.stackTraceToString()}"
+                val text = "Gandora error migration report.\n\nPlease don't change the content below.\n\n ${event.error.stackTraceToString()}"
 
                 event.context.sendEmail(
                     email = email,

@@ -46,6 +46,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -393,6 +395,30 @@ private fun GalleryPhotoTile(
                         shadow = Shadow(
                             radius = 6.dp,
                             alpha = 0.3f
+                        )
+                    )
+            )
+        }
+
+        AnimatedVisibility(
+            visible = photoTile.isFavorite && !selected,
+            enter = scaleIn(),
+            exit = scaleOut(),
+            modifier = Modifier
+                .padding(4.dp)
+                .size(18.dp)
+                .align(Alignment.TopEnd)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .dropShadow(
+                        shape = CircleShape,
+                        shadow = Shadow(
+                            radius = 4.dp,
+                            alpha = 0.45f
                         )
                     )
             )

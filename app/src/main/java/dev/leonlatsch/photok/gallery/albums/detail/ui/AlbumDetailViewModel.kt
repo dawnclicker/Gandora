@@ -88,12 +88,13 @@ class AlbumDetailViewModel @AssistedInject constructor(
             albumName = album.name,
             photos = album.files.map {
                 PhotoTile(
-                    it.internalThumbnailFileName,
-                    it.type,
-                    it.uuid
+                    fileName = it.fileName,
+                    type = it.type,
+                    uuid = it.uuid,
+                    isFavorite = it.isFavorite,
                 )
             },
-            childAlbums = childAlbums,
+            childAlbums = if (favoritesOnly) emptyList() else childAlbums,
             sort = sort,
             showFavoritesOnly = favoritesOnly,
         )

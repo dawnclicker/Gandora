@@ -17,6 +17,7 @@
 package dev.leonlatsch.photok.gallery.ui
 
 import android.net.Uri
+import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.sort.domain.Sort
 import dev.leonlatsch.photok.gallery.components.PhotoTile
 
@@ -26,6 +27,7 @@ sealed interface GalleryUiState {
 
     data class Content(
         val photos: List<PhotoTile> = emptyList(),
+        val folderTiles: List<AlbumItem> = emptyList(),
         val showAlbumSelectionDialog: Boolean = false,
         val sort: Sort,
         val showFavoritesOnly: Boolean = false,

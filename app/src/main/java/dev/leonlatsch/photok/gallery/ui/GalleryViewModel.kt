@@ -69,7 +69,13 @@ class GalleryViewModel @Inject constructor(
         sortFlow,
         favoritesOnly,
     ) { photos, showAlbumSelection, sort, fav ->
-        galleryUiStateFactory.create(photos, showAlbumSelection, sort, fav)
+        galleryUiStateFactory.create(
+            photos,
+            showAlbumSelection,
+            sort,
+            fav,
+            folderTiles = emptyList(),
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), GalleryUiState.Empty)
 
     private val eventsChannel = Channel<GalleryNavigationEvent>()

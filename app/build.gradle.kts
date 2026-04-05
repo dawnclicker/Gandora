@@ -37,7 +37,7 @@ android {
         }
 
         base {
-            archivesName = "photok-$versionName"
+            archivesName = "gandora-$versionName"
         }
     }
 

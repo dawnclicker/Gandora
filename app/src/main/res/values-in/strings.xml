@@ -41,7 +41,7 @@
 
     <!-- IMPORT -->
     <string name="import_importing">Mengimpor File</string>
-    <string name="import_permission_rationale">Photok perlu mengakses penyimpananmu untuk mengimpor file.</string>
+    <string name="import_permission_rationale">Gandora perlu mengakses penyimpananmu untuk mengimpor file.</string>
     <string name="import_sharted_question">Impor %1$d file?</string>
 
     <!-- SETUP -->
@@ -80,7 +80,7 @@
     <string name="import_menu_new_files_title">Impor file baru</string>
     <string name="import_menu_new_files_description">Impor foto dan video dari galerimu.</string>
     <string name="import_menu_restore_title">Pulihkan cadangan</string>
-    <string name="import_menu_restore_description">Pulihkan cadangan Photok. File akan ditambahkan ke file yang sudah ada.</string>
+    <string name="import_menu_restore_description">Pulihkan cadangan Gandora. File akan ditambahkan ke file yang sudah ada.</string>
     <string name="import_menu_delete_warning">File yang diimpor akan dihapus</string>
     <string name="import_menu_album_tooltip">File akan ditambahkan ke \"%s\" setelah diimpor</string>
 
@@ -126,7 +126,7 @@
     <string name="export_are_you_sure_this">Kamu yakin ingin <b>mengekspor</b> file ini ke galerimu?</string>
     <string name="export_and_delete_are_you_sure_this">Kamu yakin ingin <b>mengekspor</b> file ini ke galerimu dan menghapusnya?</string>
     <string name="export_exporting">Mengekspor file…</string>
-    <string name="export_permission_rationale">Photok perlu mengakses penyimpananmu untuk mengekspor file.</string>
+    <string name="export_permission_rationale">Gandora perlu mengakses penyimpananmu untuk mengekspor file.</string>
     <string name="export_finished">Diekspor</string>
     <string name="export_and_delete_finished">Diekspor dan dihapus</string>
 
@@ -156,11 +156,11 @@
 
     <string name="settings_category_security">Keamanan</string>
     <string name="settings_security_allow_screenshots_title">Izinkan Tangkapan Layar</string>
-    <string name="settings_security_allow_screenshots_summary">Izinkan pengambilan tangkapan layar. Perlu memulai ulang Photok.</string>
+    <string name="settings_security_allow_screenshots_summary">Izinkan pengambilan tangkapan layar. Perlu memulai ulang Gandora.</string>
     <string name="settings_security_change_password_title">Ganti Kata Sandi</string>
     <string name="settings_security_change_password_summary">Ganti kata sandimu</string>
     <string name="settings_security_biometric_title">Buka Kunci Biometrik</string>
-    <string name="settings_security_biometric_summary">Buka kunci Photok dengan autentikasi biometrik.</string>
+    <string name="settings_security_biometric_summary">Buka kunci Gandora dengan autentikasi biometrik.</string>
     <string name="settings_security_biometric_not_available">Buka Kunci Biometrik tidak tersedia</string>
     <string name="settings_security_timeout_title">Batas Waktu Kunci Otomatis</string>
     <string name="settings_security_timeout_summary">Kunci otomatis setelah waktu tertentu di latar belakang</string>
@@ -171,8 +171,8 @@
     <string name="settings_security_timeout_ten_minute">10 Menit</string>
     <string name="settings_security_timeout_never">Tidak pernah</string>
     <string name="settings_security_launch_code_title">Kode Peluncuran Rahasia</string>
-    <string name="settings_security_launch_code_summary">Kode rahasia untuk meluncurkan Photok dari aplikasi telepon.</string>
-    <string name="settings_security_launch_code_message">Masukkan *#*#[kodemu]#*#* di aplikasi telepon untuk meluncurkan Photok.</string>
+    <string name="settings_security_launch_code_summary">Kode rahasia untuk meluncurkan Gandora dari aplikasi telepon.</string>
+    <string name="settings_security_launch_code_message">Masukkan *#*#[kodemu]#*#* di aplikasi telepon untuk meluncurkan Gandora.</string>
     <string name="settings_security_launch_code_prefix">*#*#</string>
     <string name="settings_security_launch_code_suffix">#*#*</string>
     <string name="settings_security_hide_app_title">Sembunyikan Aplikasi</string>
@@ -193,25 +193,25 @@
     <string name="settings_other_title">Lainnya</string>
     <string name="settings_other_feedback_title">Masukan</string>
     <string name="settings_other_feedback_summary">Kirim email berisi masukan</string>
-    <string name="settings_other_feedback_mail_subject">Masukan untuk Photok</string>
-    <string name="settings_other_feedback_mail_body">Tulis masukan tentang Photok :)</string>
+    <string name="settings_other_feedback_mail_subject">Masukan untuk Gandora</string>
+    <string name="settings_other_feedback_mail_body">Tulis masukan tentang Gandora :)</string>
     <string name="settings_other_feedback_mail_emailaddress">photok@leonlatsch.dev</string>
     <string name="settings_other_donate_title">Donasi</string>
-    <string name="settings_other_donate_summary">Dukung pengembangan Photok</string>
+    <string name="settings_other_donate_summary">Dukung pengembangan Gandora</string>
     <string name="settings_other_donate_url">https://ko-fi.com/leonlatsch</string>
     <string name="settings_other_sourcecode_title">Kode Sumber</string>
-    <string name="settings_other_sourcecode_summary">Berkontribusi pada Photok</string>
+    <string name="settings_other_sourcecode_summary">Berkontribusi pada Gandora</string>
     <string name="settings_other_sourcecode_url">https://github.com/leonlatsch/Photok</string>
     <string name="settings_other_credits_title">Kredit</string>
     <string name="settings_other_credits_summary">Kontributor dan kredit</string>
     <string name="settings_other_telemetry_title">Data collection</string> <!-- TODO -->
     <string name="settings_other_telemetry_summary">Manage collection of usage data</string> <!-- TODO -->
     <string name="settings_other_about_title">Tentang</string>
-    <string name="settings_other_about_summary">Informasi tentang Photok</string>
+    <string name="settings_other_about_summary">Informasi tentang Gandora</string>
 
     <!-- CREDITS -->
     <string name="credits_contributors_title">Kontributor</string>
-    <string name="credits_contributors_hint">Kunjungi Photok di GitHub untuk melihat semua kontributor</string>
+    <string name="credits_contributors_hint">Kunjungi Gandora di GitHub untuk melihat semua kontributor</string>
     <string name="credits_icons_title">Ikon</string>
 
     <!-- CHANGE PASSWORD -->
@@ -229,15 +229,15 @@
     <string name="settings_security_check_password_title">Verifikasi Kata Sandi</string>
 
     <!-- HIDE APP -->
-    <string name="hide_app_title_hide">Sembunyikan Photok</string>
-    <string name="hide_app_title_show">Tampilkan Photok</string>
-    <string name="hide_app_status_label">Photok saat ini:</string>
+    <string name="hide_app_title_hide">Sembunyikan Gandora</string>
+    <string name="hide_app_title_show">Tampilkan Gandora</string>
+    <string name="hide_app_status_label">Gandora saat ini:</string>
     <string name="hide_app_status_visible">TERLIHAT</string>
     <string name="hide_app_status_hidden">TERSEMBUNYI</string>
     <string name="hide_app_app_name_stealth">Telepon</string>
-    <string name="hide_app_confirm_hide">Kamu benar-benar ingin menyembunyikan Photok?</string>
-    <string name="hide_app_confirm_show">Tampilkan kembali Photok?</string>
-    <string name="hide_app_hint">Setelah disembunyikan, Photok hanya bisa diluncurkan dari papan tombol telepon menggunakan kode peluncuran rahasiamu.</string>
+    <string name="hide_app_confirm_hide">Kamu benar-benar ingin menyembunyikan Gandora?</string>
+    <string name="hide_app_confirm_show">Tampilkan kembali Gandora?</string>
+    <string name="hide_app_hint">Setelah disembunyikan, Gandora hanya bisa diluncurkan dari papan tombol telepon menggunakan kode peluncuran rahasiamu.</string>
     <string name="hide_app_hint_current_code">Kode peluncuran saat ini:</string>
 
     <!-- ON BOARDING -->
@@ -272,12 +272,12 @@
 
     <!-- Recovery Menu -->
     <string name="recovery_subtitle">Menu Pemulihan</string>
-    <string name="recovery_menu_item_open_photok">Buka Photok</string>
+    <string name="recovery_menu_item_open_photok">Buka Gandora</string>
     <string name="recovery_subtitle_reset_hide_app">Atur Ulang Pengaturan Sembunyikan Aplikasi</string>
 
     <!-- Migration -->
     <string name="migration_initial_title_welcome">Selamat datang di</string>
-    <string name="migration_initial_explaination">Versi Photok ini memperkenalkan metode enkripsi baru. Untuk melanjutkan ke galerimu, diperlukan migrasi.</string>
+    <string name="migration_initial_explaination">Versi Gandora ini memperkenalkan metode enkripsi baru. Untuk melanjutkan ke galerimu, diperlukan migrasi.</string>
     <string name="migration_initial_button">Mulai</string>
 
     <string name="migration_initial_stage_backup_checklist">Cadangkan datamu</string>
@@ -308,14 +308,14 @@
 
 
     <!-- Biometric -->
-    <string name="biometric_unlock_title">Buka Kunci Photok</string>
+    <string name="biometric_unlock_title">Buka Kunci Gandora</string>
     <string name="biometric_unlock_subtitle">Verifikasi identitasmu untuk membuka kunci</string>
-    <string name="biometric_unlock_cancel">Gunakan kata sandi Photok</string>
+    <string name="biometric_unlock_cancel">Gunakan kata sandi Gandora</string>
 
     <string name="biometric_unlock_setup_title">Aktifkan buka kunci biometrik</string>
     <string name="biometric_unlock_setup_subtitle">Konfirmasi identitasmu untuk mengaktifkan buka kunci biometrik</string>
 
-    <string name="biometric_unlock_error">Buka kunci biometrik gagal. Gunakan kata sandi Photok kamu.</string>
+    <string name="biometric_unlock_error">Buka kunci biometrik gagal. Gunakan kata sandi Gandora kamu.</string>
     <string name="biometric_unlock_hint_button">Buka kunci dengan biometrik</string>
 
     <!-- Sorting -->
@@ -339,8 +339,8 @@
     <string name="video_player_unmute">Aktifkan Suara</string>
 
     <!-- Telemetry -->
-    <string name="telemetry_sheet_title">Help improve Photok</string> <!-- TODO -->
-    <string name="telemetry_sheet_paragraph_1">Photok can optionally send anonymous usage statistics to help improve the app.</string> <!-- TODO -->
+    <string name="telemetry_sheet_title">Help improve Gandora</string> <!-- TODO -->
+    <string name="telemetry_sheet_paragraph_1">Gandora can optionally send anonymous usage statistics to help improve the app.</string> <!-- TODO -->
     <string name="telemetry_sheet_paragraph_2">The data processed is completely anonymized and does not allow any conclusions to be drawn about personal information.</string> <!-- TODO -->
     <string name="telemetry_sheet_paragraph_3">Sending anonymous usage data is optional and can be turned off at any time in the settings.</string> <!-- TODO -->
     <string name="telemetry_learn_more">Learn more</string> <!-- TODO -->

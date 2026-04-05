@@ -1,5 +1,6 @@
-name: Build Gandora APK
-on: [push, pull_request] # Runs every time you save code
+name: Photok Refactor Build
+
+on: [push, pull_request]
 
 jobs:
   build:
@@ -12,17 +13,20 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'temurin' # Faster and more reliable than Zulu on GitHub
           cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
+      # We use 'assembleDebug' because it skips the slow/strict 'build' checks 
+      # and just focuses on making the APKs.
+      - name: Build Debug APKs
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: Gandora-Debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: Photok-Custom-Build
+          # This catches both foss-debug and play-debug
+          path: app/build/outputs/apk/**/*.apk

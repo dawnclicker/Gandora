@@ -15,14 +15,14 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#50C9C3</color>
-    <color name="colorPrimaryDark">#319f99</color>
-    <color name="colorAccent">#50c9c3</color>
-    <color name="colorComplementary">#c95056</color>
+    <color name="colorPrimary">#8B0000</color>
+    <color name="colorPrimaryDark">#5C0000</color>
+    <color name="colorAccent">#8B0000</color>
+    <color name="colorComplementary">#FF8A80</color>
 
-    <!-- Components -->
-    <color name="background">#1a1a1a</color>
-    <color name="componentBackground">#181818</color>
+    <!-- Components (Gandora obsidian) -->
+    <color name="background">#0A0A0A</color>
+    <color name="componentBackground">#121212</color>
     <color name="textColor">#fafafa</color>
     <color name="secondaryTextColor">#B3B3B3</color>
     <color name="appTitleColor">@android:color/white</color>

@@ -48,6 +48,7 @@ fun GalleryContent(
     PhotoGallery(
         modifier = modifier.fillMaxSize(),
         photos = uiState.photos,
+        folderTiles = uiState.folderTiles,
         albumName = null,
         multiSelectionState = multiSelectionState,
         onOpenPhoto = { handleUiEvent(GalleryUiEvent.OpenPhoto(it)) },
@@ -95,7 +96,7 @@ fun GalleryContentPreview() {
         GalleryContent(
             uiState = GalleryUiState.Content(
                 photos = listOf(
-                    PhotoTile("", PhotoType.JPEG, UUID.randomUUID().toString()),
+                    PhotoTile("", PhotoType.JPEG, UUID.randomUUID().toString(), isFavorite = true),
                     PhotoTile("", PhotoType.MP4, UUID.randomUUID().toString()),
                     PhotoTile("", PhotoType.GIF, UUID.randomUUID().toString()),
                     PhotoTile("", PhotoType.MPEG, "1"),
@@ -111,6 +112,7 @@ fun GalleryContentPreview() {
                     PhotoTile("", PhotoType.PNG, UUID.randomUUID().toString()),
                     PhotoTile("", PhotoType.PNG, UUID.randomUUID().toString()),
                 ),
+                folderTiles = emptyList(),
                 showAlbumSelectionDialog = false,
                 sort = SortConfig.Gallery.default,
                 showFavoritesOnly = false,
