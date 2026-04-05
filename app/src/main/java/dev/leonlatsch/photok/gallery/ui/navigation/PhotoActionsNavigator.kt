@@ -41,7 +41,12 @@ class PhotoActionsNavigator @Inject constructor() {
                 fragment.childFragmentManager
             )
 
-            is PhotoAction.OpenPhoto -> navigateOpenPhoto(action.photoUUID, action.albumUUID, navController)
+            is PhotoAction.OpenPhoto -> navigateOpenPhoto(
+                action.photoUUID,
+                action.albumUUID,
+                action.favoritesOnly,
+                navController,
+            )
         }
     }
 
@@ -60,14 +65,27 @@ class PhotoActionsNavigator @Inject constructor() {
         DeleteBottomSheetDialogFragment(photos).show(fragmentManager)
     }
 
-    private fun navigateOpenPhoto(photoUUID: String, albumUUID: String, navController: NavController) {
-        val direction = ImageViewerFragmentDirections.actionGlobalImageViewerFragment(photoUuid = photoUUID, albumUuid = albumUUID)
+    private fun navigateOpenPhoto(
+        photoUUID: String,
+        albumUUID: String,
+        favoritesOnly: Boolean,
+        navController: NavController,
+    ) {
+        val direction = ImageViewerFragmentDirections.actionGlobalImageViewerFragment(
+            photoUuid = photoUUID,
+            albumUuid = albumUUID,
+            favoritesOnly = favoritesOnly,
+        )
         navController.navigate(direction)
     }
 }
 
 sealed interface PhotoAction {
-    data class OpenPhoto(val photoUUID: String, val albumUUID: String = "") : PhotoAction
+    data class OpenPhoto(
+        val photoUUID: String,
+        val albumUUID: String = "",
+        val favoritesOnly: Boolean = false,
+    ) : PhotoAction
     data class DeletePhotos(val photos: List<Photo>) : PhotoAction
     data class ExportPhotos(val photos: List<Photo>, val target: Uri) : PhotoAction
 }

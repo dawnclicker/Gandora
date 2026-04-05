@@ -26,8 +26,10 @@ sealed interface AlbumDetailUiEvent {
     data class OnDelete(val items: List<String>) : AlbumDetailUiEvent
     data class OnExport(val items: List<String>, val target: Uri?) : AlbumDetailUiEvent
     data class RemoveFromAlbum(val items: List<String>) : AlbumDetailUiEvent
-    data object DeleteAlbum : AlbumDetailUiEvent
+    data class DeleteAlbum(val permanentlyDeleteFiles: Boolean) : AlbumDetailUiEvent
+    data class CreateSubfolder(val name: String) : AlbumDetailUiEvent
     data class RenameAlbum(val newName: String) : AlbumDetailUiEvent
     data class OnImportChoice(val choice: ImportChoice) : AlbumDetailUiEvent
     data class SortChanged(val sort: Sort) : AlbumDetailUiEvent
+    data object ToggleFavoritesFilter : AlbumDetailUiEvent
 }

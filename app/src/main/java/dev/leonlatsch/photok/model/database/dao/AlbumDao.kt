@@ -35,6 +35,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.intellij.lang.annotations.Language
 
+internal fun createScopedFavoritesPhotosQuery(subtreeAlbumUuids: List<String>, sort: Sort): SupportSQLiteQuery {
+    require(subtreeAlbumUuids.isNotEmpty())
+    val placeholders = subtreeAlbumUuids.joinToString(",") { "?" }
+    val orderExpr = when (sort.field) {
+        Sort.Field.LinkedAt -> "MAX(ref.${AlbumPhotoCrossRefTable.COL_LINKED_AT})"
+        else -> "p.${sort.field.columnName}"
+    }
+    @Language("roomsql")
+    val sql = """
+        SELECT p.* FROM ${Photo.TABLE_NAME} p
+        INNER JOIN ${AlbumPhotoCrossRefTable.TABLE_NAME} ref ON p.photo_uuid = ref.photo_uuid
+        WHERE ref.album_uuid IN ($placeholders) AND p.${Photo.COL_IS_FAVORITE} = 1
+        GROUP BY p.photo_uuid
+        ORDER BY $orderExpr ${sort.order.sql}
+    """.trimIndent()
+    return SimpleSQLiteQuery(sql, subtreeAlbumUuids.toTypedArray())
+}
+
 @Language("roomsql")
 const val SELECT_ALL_ALBUMS_QUERY = """
     SELECT * FROM album
@@ -67,6 +85,28 @@ abstract class AlbumDao {
     @Query("SELECT * FROM album WHERE album_uuid = :uuid")
     abstract suspend fun getAlbum(uuid: String): AlbumTable?
 
+    @Query(
+        """
+        SELECT * FROM album
+        WHERE parent_album_uuid = :parentUuid
+        ORDER BY modified_at DESC
+        """
+    )
+    abstract fun observeChildAlbums(parentUuid: String): Flow<List<AlbumTable>>
+
+    @Query("UPDATE album SET ${AlbumTable.COL_PARENT_ALBUM_UUID} = :newParentUuid WHERE album_uuid = :albumUuid")
+    abstract suspend fun updateParentAlbum(albumUuid: String, newParentUuid: String?)
+
+    @Query(
+        """
+        SELECT DISTINCT photo_uuid FROM ${AlbumPhotoCrossRefTable.TABLE_NAME}
+        WHERE album_uuid IN (:albumUuids)
+        """
+    )
+    abstract suspend fun getPhotoUuidsLinkedToAlbums(albumUuids: List<String>): List<String>
+
+    @Query("SELECT COUNT(*) FROM ${AlbumPhotoCrossRefTable.TABLE_NAME} WHERE photo_uuid = :photoUuid")
+    abstract suspend fun countAlbumRefsForPhoto(photoUuid: String): Int
 
     @Query("SELECT photo_uuid, linked_at FROM album_photos_cross_ref WHERE photo_uuid in (:photoUUIDs)")
     abstract suspend fun getLinkedAtFor(
@@ -119,8 +159,18 @@ abstract class AlbumDao {
 
     // Sorting
 
-    open fun observeAlbumWithPhotos(uuid: String, sort: Sort): Flow<AlbumWithPhotos?> {
-        val query = createSortedPhotosQuery(uuid, sort)
+    open fun observeAlbumWithPhotos(
+        uuid: String,
+        sort: Sort,
+        favoritesOnly: Boolean = false,
+        subtreeAlbumUuids: List<String> = emptyList(),
+    ): Flow<AlbumWithPhotos?> {
+        val query = when {
+            favoritesOnly && subtreeAlbumUuids.isNotEmpty() ->
+                createScopedFavoritesPhotosQuery(subtreeAlbumUuids, sort)
+            else ->
+                createSortedPhotosQuery(uuid, sort)
+        }
 
         return combine(
             observeAlbum(uuid),
@@ -134,13 +184,23 @@ abstract class AlbumDao {
     @RawQuery(observedEntities = [Photo::class, AlbumPhotoCrossRefTable::class])
     abstract fun observePhotosForAlbum(query: SupportSQLiteQuery): Flow<List<Photo>>
 
-    open suspend fun getPhotosForAlbum(uuid: String, sort: Sort): List<Photo> {
-        val query = createSortedPhotosQuery(uuid, sort)
-        return getPhotosForAlbum(query)
+    open suspend fun getPhotosForAlbum(
+        uuid: String,
+        sort: Sort,
+        favoritesOnly: Boolean = false,
+        subtreeAlbumUuids: List<String> = emptyList(),
+    ): List<Photo> {
+        val query = when {
+            favoritesOnly && subtreeAlbumUuids.isNotEmpty() ->
+                createScopedFavoritesPhotosQuery(subtreeAlbumUuids, sort)
+            else ->
+                createSortedPhotosQuery(uuid, sort)
+        }
+        return getPhotosForAlbumByQuery(query)
     }
 
     @RawQuery
-    abstract suspend fun getPhotosForAlbum(query: SupportSQLiteQuery): List<Photo>
+    abstract suspend fun getPhotosForAlbumByQuery(query: SupportSQLiteQuery): List<Photo>
 
     private fun createSortedPhotosQuery(album: String, sort: Sort): SupportSQLiteQuery {
         @Language("roomsql")

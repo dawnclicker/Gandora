@@ -27,6 +27,7 @@ import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.detail.ui.AlbumDetailNavigator.NavigationEvent.ShowToast
 import dev.leonlatsch.photok.gallery.albums.domain.AlbumRepository
 import dev.leonlatsch.photok.gallery.albums.domain.model.Album
+import dev.leonlatsch.photok.gallery.albums.toUi
 import dev.leonlatsch.photok.gallery.components.ImportChoice
 import dev.leonlatsch.photok.gallery.components.PhotoTile
 import dev.leonlatsch.photok.gallery.ui.navigation.PhotoAction
@@ -38,11 +39,14 @@ import dev.leonlatsch.photok.sort.domain.SortRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 const val ALBUM_DETAIL_UUID = "album_uuid"
@@ -57,10 +61,18 @@ class AlbumDetailViewModel @AssistedInject constructor(
 
     private val sortFlow = sortRepository.observeSortFor(albumUuid = albumUUID, default = SortConfig.Album.default)
 
+    private val favoritesOnlyFlow = MutableStateFlow(false)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val albumFlow = sortFlow.flatMapLatest { sort ->
-        albumsRepository.observeAlbumWithPhotos(albumUUID, sort)
+    private val albumFlow = combine(sortFlow, favoritesOnlyFlow) { sort, favoritesOnly ->
+        sort to favoritesOnly
+    }.flatMapLatest { (sort, favoritesOnly) ->
+        albumsRepository.observeAlbumWithPhotos(albumUUID, sort, favoritesOnly = favoritesOnly)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Album.Placeholder)
+
+    private val childAlbumsFlow = albumsRepository.observeChildAlbumsWithPhotos(albumUUID)
+        .map { albums -> albums.map { it.toUi() } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val photoActionsChannel = Channel<PhotoAction>()
     val photoActions = photoActionsChannel.receiveAsFlow()
@@ -68,7 +80,9 @@ class AlbumDetailViewModel @AssistedInject constructor(
     val uiState = combine(
         albumFlow,
         sortFlow,
-    ) { album, sort ->
+        childAlbumsFlow,
+        favoritesOnlyFlow,
+    ) { album, sort, childAlbums, favoritesOnly ->
         AlbumDetailUiState(
             albumId = album.uuid,
             albumName = album.name,
@@ -79,7 +93,9 @@ class AlbumDetailViewModel @AssistedInject constructor(
                     it.uuid
                 )
             },
+            childAlbums = childAlbums,
             sort = sort,
+            showFavoritesOnly = favoritesOnly,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AlbumDetailUiState())
 
@@ -104,15 +120,19 @@ class AlbumDetailViewModel @AssistedInject constructor(
             is AlbumDetailUiEvent.OpenPhoto -> {
                 photoActionsChannel.trySend(
                     OpenPhoto(
-                        event.item.uuid,
-                        albumFlow.value.uuid
+                        photoUUID = event.item.uuid,
+                        albumUUID = albumFlow.value.uuid,
+                        favoritesOnly = favoritesOnlyFlow.value,
                     )
                 )
             }
 
-            AlbumDetailUiEvent.DeleteAlbum -> {
+            is AlbumDetailUiEvent.DeleteAlbum -> {
                 viewModelScope.launch {
-                    albumsRepository.deleteAlbum(albumFlow.value)
+                    albumsRepository.deleteAlbum(
+                        albumFlow.value,
+                        permanentlyDeleteFiles = event.permanentlyDeleteFiles,
+                    )
                         .onSuccess {
                             navEventsChannel.trySend(
                                 ShowToast(
@@ -146,6 +166,21 @@ class AlbumDetailViewModel @AssistedInject constructor(
             is AlbumDetailUiEvent.OnImportChoice -> onImportChoice(event.choice)
             is AlbumDetailUiEvent.SortChanged -> viewModelScope.launch {
                 sortRepository.updateSortFor(albumUuid = albumUUID, sort = event.sort)
+            }
+
+            AlbumDetailUiEvent.ToggleFavoritesFilter -> {
+                favoritesOnlyFlow.update { !it }
+            }
+
+            is AlbumDetailUiEvent.CreateSubfolder -> viewModelScope.launch {
+                albumsRepository.createAlbum(
+                    Album(
+                        name = event.name,
+                        modifiedAt = System.currentTimeMillis(),
+                        parentAlbumUuid = albumFlow.value.uuid,
+                        files = emptyList(),
+                    ),
+                )
             }
         }
     }

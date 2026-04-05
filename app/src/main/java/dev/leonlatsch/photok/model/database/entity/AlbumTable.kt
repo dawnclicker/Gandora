@@ -29,9 +29,12 @@ data class AlbumTable(
     val uuid: String = UUID.randomUUID().toString(),
     @ColumnInfo(name = "modified_at", defaultValue = "0")
     val modifiedAt: Long,
+    @ColumnInfo(name = COL_PARENT_ALBUM_UUID, index = true, defaultValue = "NULL")
+    val parentAlbumUuid: String? = null,
 ) {
     companion object {
         const val TABLE_NAME = "album"
         const val ALBUM_UUID = "album_uuid"
+        const val COL_PARENT_ALBUM_UUID = "parent_album_uuid"
     }
 }

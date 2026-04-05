@@ -113,6 +113,7 @@ fun GalleryContentPreview() {
                 ),
                 showAlbumSelectionDialog = false,
                 sort = SortConfig.Gallery.default,
+                showFavoritesOnly = false,
             ),
             handleUiEvent = {},
             multiSelectionState = rememberMultiSelectionState(items = emptyList())

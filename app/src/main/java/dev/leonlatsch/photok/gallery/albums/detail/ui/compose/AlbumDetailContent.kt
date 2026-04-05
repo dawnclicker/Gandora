@@ -43,6 +43,7 @@ import dev.leonlatsch.photok.ui.theme.AppTheme
 fun AlbumDetailContent(
     uiState: AlbumDetailUiState,
     handleUiEvent: (AlbumDetailUiEvent) -> Unit,
+    onOpenChildAlbum: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val multiSelectionState =
@@ -54,6 +55,8 @@ fun AlbumDetailContent(
 
     PhotoGallery(
         photos = uiState.photos,
+        folderTiles = uiState.childAlbums,
+        onOpenFolder = onOpenChildAlbum,
         albumName = uiState.albumName,
         multiSelectionState = multiSelectionState,
         onOpenPhoto = { handleUiEvent(AlbumDetailUiEvent.OpenPhoto(it)) },
@@ -122,9 +125,9 @@ private fun AlbumsDetailScreenPreview() {
     AppTheme {
         AlbumDetailContent(
             uiState = AlbumDetailUiState(
-                "",
-                "Album Name",
-                listOf(
+                albumId = "",
+                albumName = "Album Name",
+                photos = listOf(
                     PhotoTile("file1", PhotoType.JPEG, "uuid1"),
                     PhotoTile("file2", PhotoType.JPEG, "uuid2"),
                     PhotoTile("file3", PhotoType.JPEG, "uuid3"),
@@ -133,9 +136,10 @@ private fun AlbumsDetailScreenPreview() {
                     PhotoTile("file6", PhotoType.JPEG, "uuid6"),
                     PhotoTile("file7", PhotoType.JPEG, "uuid7"),
                     PhotoTile("file8", PhotoType.JPEG, "uuid8"),
-                )
+                ),
             ),
             handleUiEvent = {},
+            onOpenChildAlbum = {},
         )
     }
 }

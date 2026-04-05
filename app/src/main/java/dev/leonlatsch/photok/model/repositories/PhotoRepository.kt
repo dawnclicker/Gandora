@@ -80,7 +80,10 @@ class PhotoRepository @Inject constructor(
      */
     suspend fun findAllPhotosByImportDateDesc() = photoDao.findAllPhotosByImportDateDesc()
 
-    fun observeAll(sort: Sort) = photoDao.observeAllSorted(sort)
+    fun observeAll(sort: Sort, favoritesOnly: Boolean = false) =
+        photoDao.observeAllSorted(sort, favoritesOnly)
+
+    suspend fun setFavorite(uuid: String, favorite: Boolean) = photoDao.setFavorite(uuid, favorite)
 
     /**
      * @see PhotoDao.countAll

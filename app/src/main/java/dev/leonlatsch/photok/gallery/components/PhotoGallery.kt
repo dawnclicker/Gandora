@@ -74,6 +74,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.leonlatsch.photok.R
+import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.model.database.entity.PhotoType
 import dev.leonlatsch.photok.other.extensions.launchAndIgnoreTimer
 import dev.leonlatsch.photok.settings.ui.compose.LocalConfig
@@ -98,6 +99,8 @@ fun PhotoGallery(
     onImportChoice: (ImportChoice) -> Unit,
     additionalMultiSelectionActions: @Composable (ColumnScope.() -> Unit),
     modifier: Modifier = Modifier,
+    folderTiles: List<AlbumItem> = emptyList(),
+    onOpenFolder: (String) -> Unit = {},
 ) {
     val activity = LocalActivity.current
     var importMenuBottomSheetVisible by remember { mutableStateOf(false) }
@@ -112,6 +115,8 @@ fun PhotoGallery(
 
     Box(modifier = modifier.fillMaxSize()) {
         PhotoGrid(
+            folderTiles = folderTiles,
+            onOpenFolder = onOpenFolder,
             photos = photos,
             multiSelectionState = multiSelectionState,
             openPhoto = onOpenPhoto,
@@ -242,6 +247,8 @@ fun PhotoGallery(
 
 @Composable
 private fun PhotoGrid(
+    folderTiles: List<AlbumItem>,
+    onOpenFolder: (String) -> Unit,
     photos: List<PhotoTile>,
     multiSelectionState: MultiSelectionState,
     openPhoto: (PhotoTile) -> Unit,
@@ -262,6 +269,17 @@ private fun PhotoGrid(
         modifier = modifier.fillMaxWidth(),
         state = gridState
     ) {
+        items(folderTiles, key = { "album_${it.id}" }) { album ->
+            AlbumTile(
+                album = album,
+                onAlbumClicked = { id ->
+                    if (!multiSelectionState.isActive.value) {
+                        onOpenFolder(id)
+                    }
+                },
+                modifier = Modifier.animateItem(),
+            )
+        }
         items(photos, key = { it.uuid }) {
             GalleryPhotoTile(
                 photoTile = it,

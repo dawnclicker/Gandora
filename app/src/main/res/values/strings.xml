@@ -72,6 +72,11 @@
     <string name="gallery_albums_create_placeholder">Homework ;)</string>
     <string name="gallery_albums_select_title">Select an Album</string>
     <string name="gallery_albums_deleted">Album deleted</string>
+    <string name="album_delete_folder_message">Delete this folder and everything inside?</string>
+    <string name="album_delete_permanent_checkbox">Permanently delete encrypted files from disk</string>
+    <string name="album_new_subfolder">New subfolder</string>
+    <string name="album_create_subfolder_title">Create subfolder</string>
+    <string name="gallery_favorites_toggle">Favorites</string>
     <string name="gallery_albums_photos_added">%1$d items added</string>
     <string name="magic_fab_new_album_label">New Album</string>
 

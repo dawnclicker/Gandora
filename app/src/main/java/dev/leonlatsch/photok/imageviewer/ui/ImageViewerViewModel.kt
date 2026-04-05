@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 sealed interface ImageViewerUiEvent {
+    data class ToggleFavorite(val item: ImageViewerItem) : ImageViewerUiEvent
     data class ConfirmDelete(val item: ImageViewerItem) : ImageViewerUiEvent
     data class ConfirmExport(
         val item: ImageViewerItem,
@@ -84,11 +85,13 @@ data class ImageViewerUiState(
 }
 
 const val ALBUM_UUID = "albumUuid"
+const val FAVORITES_ONLY = "favoritesOnly"
 
 @OptIn(UnstableApi::class)
 @HiltViewModel(assistedFactory = ImageViewerViewModel.Factory::class)
 class ImageViewerViewModel @AssistedInject constructor(
     @Assisted(ALBUM_UUID) private val albumUuid: String?,
+    @Assisted(FAVORITES_ONLY) private val favoritesOnly: Boolean,
     private val app: Application,
     private val encryptionManager: EncryptionManager,
     private val photoRepository: PhotoRepository,
@@ -126,6 +129,11 @@ class ImageViewerViewModel @AssistedInject constructor(
 
     fun handleUiEvent(event: ImageViewerUiEvent) {
         when (event) {
+            is ImageViewerUiEvent.ToggleFavorite -> viewModelScope.launch {
+                val p = event.item.photo
+                photoRepository.setFavorite(p.uuid, !p.isFavorite)
+            }
+
             is ImageViewerUiEvent.ConfirmDelete -> viewModelScope.launch {
                 photoRepository.safeDeletePhoto(event.item.photo)
             }
@@ -185,11 +193,12 @@ class ImageViewerViewModel @AssistedInject constructor(
         }
 
         return if (albumUuid == null) {
-            photoRepository.observeAll(sort)
+            photoRepository.observeAll(sort, favoritesOnly)
         } else {
             albumRepository.observeAlbumWithPhotos(
                 uuid = albumUuid,
-                sort = sort
+                sort = sort,
+                favoritesOnly = favoritesOnly,
             ).map { it.files }
         }
     }
@@ -197,7 +206,8 @@ class ImageViewerViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(ALBUM_UUID) albumUuid: String?
+            @Assisted(ALBUM_UUID) albumUuid: String?,
+            @Assisted(FAVORITES_ONLY) favoritesOnly: Boolean,
         ): ImageViewerViewModel
     }
 }

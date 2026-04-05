@@ -30,14 +30,16 @@ fun AlbumWithPhotos?.toDomain(): Album = this?.run {
         uuid = album.uuid,
         name = album.name,
         modifiedAt = album.modifiedAt,
+        parentAlbumUuid = album.parentAlbumUuid,
         files = photos,
     )
-} ?: Album(name = "", modifiedAt = System.currentTimeMillis(), files = emptyList())
+} ?: Album(name = "", modifiedAt = System.currentTimeMillis(), parentAlbumUuid = null, files = emptyList())
 
 fun AlbumTable.toDomain(): Album = Album(
     uuid = uuid,
     name = name,
     modifiedAt = modifiedAt,
+    parentAlbumUuid = parentAlbumUuid,
     files = emptyList(),
 )
 
@@ -45,6 +47,7 @@ fun Album.toData(): AlbumTable = AlbumTable(
     name = name,
     modifiedAt = modifiedAt,
     uuid = uuid,
+    parentAlbumUuid = parentAlbumUuid,
 )
 
 fun Album.toUi(): AlbumItem = AlbumItem(

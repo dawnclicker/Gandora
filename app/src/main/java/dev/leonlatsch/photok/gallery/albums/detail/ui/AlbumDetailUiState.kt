@@ -16,6 +16,7 @@
 
 package dev.leonlatsch.photok.gallery.albums.detail.ui
 
+import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.gallery.components.PhotoTile
 import dev.leonlatsch.photok.sort.domain.Sort
 import dev.leonlatsch.photok.sort.domain.SortConfig
@@ -24,5 +25,7 @@ data class AlbumDetailUiState(
     val albumId: String = "",
     val albumName: String = "",
     val photos: List<PhotoTile> = emptyList(),
+    val childAlbums: List<AlbumItem> = emptyList(),
     val sort: Sort = SortConfig.Album.default,
+    val showFavoritesOnly: Boolean = false,
 )

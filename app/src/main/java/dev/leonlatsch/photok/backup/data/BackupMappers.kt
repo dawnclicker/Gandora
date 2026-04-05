@@ -28,6 +28,7 @@ fun Photo.toBackup(): PhotoBackup =
         type = type,
         size = size,
         uuid = uuid,
+        isFavorite = isFavorite,
     )
 
 fun PhotoBackup.toDomain(): Photo =
@@ -38,6 +39,7 @@ fun PhotoBackup.toDomain(): Photo =
         type = type,
         size = size,
         uuid = uuid,
+        isFavorite = isFavorite,
     )
 
 fun Album.toBackup(): AlbumBackup =
@@ -45,6 +47,7 @@ fun Album.toBackup(): AlbumBackup =
         uuid = uuid,
         modifiedAt = modifiedAt,
         name = name,
+        parentAlbumUuid = parentAlbumUuid,
     )
 
 fun AlbumBackup.toDomain(): Album =
@@ -52,6 +55,7 @@ fun AlbumBackup.toDomain(): Album =
         uuid = uuid,
         name = name,
         modifiedAt = modifiedAt ?: System.currentTimeMillis(),
+        parentAlbumUuid = parentAlbumUuid,
         files = emptyList(),
     )
 

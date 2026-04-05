@@ -29,4 +29,5 @@ sealed interface GalleryUiEvent {
     data object CancelAlbumSelection : GalleryUiEvent
     data class OnImportChoice(val choice: ImportChoice) : GalleryUiEvent
     data class SortChanged(val sort: Sort) : GalleryUiEvent
+    data object ToggleFavoritesFilter : GalleryUiEvent
 }

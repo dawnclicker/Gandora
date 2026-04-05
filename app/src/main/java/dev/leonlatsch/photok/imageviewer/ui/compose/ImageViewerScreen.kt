@@ -61,6 +61,7 @@ fun ImageViewerScreen(
     navController: NavController,
     photoUuid: String,
     albumUuid: String?,
+    favoritesOnly: Boolean,
 ) {
     val window = findWindow()
 
@@ -70,7 +71,7 @@ fun ImageViewerScreen(
         val viewModel: ImageViewerViewModel =
             hiltViewModel<ImageViewerViewModel, ImageViewerViewModel.Factory>(
                 creationCallback = { factory ->
-                    factory.create(albumUuid)
+                    factory.create(albumUuid, favoritesOnly)
                 }
             )
 

@@ -68,7 +68,10 @@ object AppModule {
         } else {
             this
         }
-    }.build()
+    }
+        .fallbackToDestructiveMigration()
+        .fallbackToDestructiveMigrationOnDowngrade()
+        .build()
 
     @Provides
     @Singleton

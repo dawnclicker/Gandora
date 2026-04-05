@@ -25,10 +25,12 @@ import kotlinx.coroutines.flow.Flow
 interface AlbumRepository {
     fun observeAllAlbumsWithPhotos(): Flow<List<Album>>
     suspend fun getAlbums(): List<Album>
-    fun observeAlbumWithPhotos(uuid: String, sort: Sort): Flow<Album>
-    suspend fun getPhotosForAlbum(uuid: String): List<Photo>
+    fun observeAlbumWithPhotos(uuid: String, sort: Sort, favoritesOnly: Boolean = false): Flow<Album>
+    fun observeChildAlbumsWithPhotos(parentUuid: String): Flow<List<Album>>
+    suspend fun getPhotosForAlbum(uuid: String, favoritesOnly: Boolean = false): List<Photo>
     suspend fun createAlbum(album: Album): Result<Album>
-    suspend fun deleteAlbum(album: Album): Result<Unit>
+    suspend fun deleteAlbum(album: Album, permanentlyDeleteFiles: Boolean = false): Result<Unit>
+    suspend fun moveAlbum(albumUuid: String, newParentUuid: String?): Result<Unit>
     suspend fun deleteAll()
 
     suspend fun link(photoUUIDs: List<String>, albumUUID: String)

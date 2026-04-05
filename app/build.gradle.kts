@@ -167,6 +167,7 @@ dependencies {
     // Compose
     implementation(platform("androidx.compose:compose-bom:2026.02.00"))
     implementation("androidx.compose.material3:material3:1.4.0")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.activity:activity-compose")
 

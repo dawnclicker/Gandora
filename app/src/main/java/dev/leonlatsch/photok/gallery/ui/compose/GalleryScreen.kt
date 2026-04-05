@@ -19,7 +19,12 @@ package dev.leonlatsch.photok.gallery.ui.compose
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,11 +34,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.leonlatsch.photok.gallery.components.AlbumPickerDialog
 import dev.leonlatsch.photok.gallery.components.ImportSharedDialog
 import dev.leonlatsch.photok.gallery.components.rememberMultiSelectionState
+import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.ui.GalleryUiEvent
 import dev.leonlatsch.photok.gallery.ui.GalleryUiState
 import dev.leonlatsch.photok.gallery.ui.GalleryViewModel
@@ -51,6 +58,7 @@ fun GalleryScreen(
     viewModel: GalleryViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val favoritesOnly by viewModel.showFavoritesOnly.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -62,6 +70,15 @@ fun GalleryScreen(
                     windowInsets = WindowInsets.statusBars,
                     scrollBehavior = scrollBehavior,
                     actions = {
+                        IconButton(
+                            onClick = { viewModel.handleUiEvent(GalleryUiEvent.ToggleFavoritesFilter) },
+                        ) {
+                            Icon(
+                                imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription = stringResource(R.string.gallery_favorites_toggle),
+                            )
+                        }
+
                         if (uiState is GalleryUiState.Content) {
                             val sort = (uiState as GalleryUiState.Content).sort
 

@@ -71,6 +71,7 @@ class ImageViewerFragment : Fragment() {
                             navController = findNavController(),
                             photoUuid = args.photoUuid,
                             albumUuid = args.albumUuid.takeIf { it.isNotEmpty() },
+                            favoritesOnly = args.favoritesOnly,
                         )
                     }
                 }

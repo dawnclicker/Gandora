@@ -35,6 +35,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -135,6 +138,19 @@ fun ImageViewerControls(
                         }
                     },
                     actions = {
+                        currentItem?.let { item ->
+                            IconButton(
+                                onClick = {
+                                    handleUiEvent(ImageViewerUiEvent.ToggleFavorite(item))
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = if (item.photo.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                                    contentDescription = stringResource(R.string.gallery_favorites_toggle),
+                                )
+                            }
+                        }
+
                         IconButton(
                             onClick = {
                                 handleUiEvent(

@@ -51,6 +51,10 @@ data class Photo(
     @PrimaryKey
     @ColumnInfo(name = "photo_uuid")
     val uuid: String = UUID.randomUUID().toString(),
+
+    @Expose
+    @ColumnInfo(name = COL_IS_FAVORITE, defaultValue = "0")
+    var isFavorite: Boolean = false,
 ) {
 
     val internalFileName: String
@@ -68,8 +72,7 @@ data class Photo(
         const val COL_LAST_MODIFIED = "lastModified"
         const val DATE_TAKEN = "dateTaken"
         const val COL_SIZE = "size"
+        const val COL_IS_FAVORITE = "isFavorite"
         const val TABLE_NAME = "photo"
-
-
     }
 }

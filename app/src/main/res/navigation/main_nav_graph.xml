@@ -152,6 +152,10 @@
             android:name="album_uuid"
             android:defaultValue=""
             app:argType="string" />
+        <argument
+            android:name="favorites_only"
+            android:defaultValue="false"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"

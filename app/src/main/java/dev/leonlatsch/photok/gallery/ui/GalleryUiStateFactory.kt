@@ -27,6 +27,7 @@ class GalleryUiStateFactory @Inject constructor() {
         photos: List<Photo>,
         showAlbumSelectionDialog: Boolean,
         sort: Sort,
+        showFavoritesOnly: Boolean,
     ): GalleryUiState {
         return if (photos.isEmpty()) {
             GalleryUiState.Empty
@@ -41,6 +42,7 @@ class GalleryUiStateFactory @Inject constructor() {
                 },
                 showAlbumSelectionDialog = showAlbumSelectionDialog,
                 sort = sort,
+                showFavoritesOnly = showFavoritesOnly,
             )
         }
     }

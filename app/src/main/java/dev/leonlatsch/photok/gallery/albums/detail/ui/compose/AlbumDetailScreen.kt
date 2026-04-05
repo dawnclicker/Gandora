@@ -18,6 +18,9 @@ package dev.leonlatsch.photok.gallery.albums.detail.ui.compose
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.DropdownMenuItem
@@ -42,11 +45,12 @@ import androidx.navigation.NavController
 import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.detail.ui.AlbumDetailUiEvent
 import dev.leonlatsch.photok.gallery.albums.detail.ui.AlbumDetailViewModel
+import dev.leonlatsch.photok.gallery.albums.ui.AlbumsFragmentDirections
 import dev.leonlatsch.photok.gallery.albums.ui.compose.RenameAlbumDialog
 import dev.leonlatsch.photok.sort.domain.SortConfig
 import dev.leonlatsch.photok.sort.ui.SortingMenu
 import dev.leonlatsch.photok.sort.ui.SortingMenuIconButton
-import dev.leonlatsch.photok.ui.components.ConfirmationDialog
+import dev.leonlatsch.photok.ui.components.FolderDeleteConfirmDialog
 import dev.leonlatsch.photok.ui.components.RoundedDropdownMenu
 import dev.leonlatsch.photok.ui.theme.AppTheme
 
@@ -58,6 +62,7 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
 
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
+    var showCreateSubfolderDialog by remember { mutableStateOf(false) }
 
     AppTheme {
         Scaffold(
@@ -95,6 +100,15 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
                             onSortChanged = { viewModel.handleUiEvent(AlbumDetailUiEvent.SortChanged(it)) },
                         )
 
+                        IconButton(
+                            onClick = { viewModel.handleUiEvent(AlbumDetailUiEvent.ToggleFavoritesFilter) },
+                        ) {
+                            Icon(
+                                imageVector = if (uiState.showFavoritesOnly) Icons.Filled.Star else Icons.Outlined.Star,
+                                contentDescription = stringResource(R.string.gallery_favorites_toggle),
+                            )
+                        }
+
                         IconButton(onClick = { showMore = true }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_more),
@@ -107,6 +121,20 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
                             onDismissRequest = { showMore = false },
                             modifier = Modifier.animateContentSize()
                         ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.album_new_subfolder)) },
+                                onClick = {
+                                    showMore = false
+                                    showCreateSubfolderDialog = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_folder),
+                                        contentDescription = null,
+                                    )
+                                },
+                            )
+
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.common_delete)) },
                                 onClick = {
@@ -142,16 +170,32 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
             AlbumDetailContent(
                 uiState = uiState,
                 handleUiEvent = { viewModel.handleUiEvent(it) },
+                onOpenChildAlbum = { uuid ->
+                    navController.navigate(
+                        AlbumsFragmentDirections.actionGlobalAlbumDetailFragment(albumUuid = uuid),
+                    )
+                },
                 modifier = Modifier
                     .padding(top = contentPadding.calculateTopPadding())
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
             )
 
-            ConfirmationDialog(
+            FolderDeleteConfirmDialog(
                 show = showConfirmDeleteDialog,
                 onDismissRequest = { showConfirmDeleteDialog = false },
-                text = stringResource(R.string.common_are_you_sure),
-                onConfirm = { viewModel.handleUiEvent(AlbumDetailUiEvent.DeleteAlbum) }
+                message = stringResource(R.string.album_delete_folder_message),
+                permanentDeleteLabel = stringResource(R.string.album_delete_permanent_checkbox),
+                onConfirm = { permanent ->
+                    viewModel.handleUiEvent(AlbumDetailUiEvent.DeleteAlbum(permanent))
+                },
+            )
+
+            CreateSubfolderDialog(
+                show = showCreateSubfolderDialog,
+                onDismissRequest = { showCreateSubfolderDialog = false },
+                onCreate = { name ->
+                    viewModel.handleUiEvent(AlbumDetailUiEvent.CreateSubfolder(name))
+                },
             )
 
             RenameAlbumDialog(

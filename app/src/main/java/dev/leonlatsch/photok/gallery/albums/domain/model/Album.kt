@@ -23,9 +23,10 @@ data class Album(
     val uuid: String = UUID.randomUUID().toString(),
     val name: String,
     val modifiedAt: Long,
+    val parentAlbumUuid: String? = null,
     val files: List<Photo>,
 ) {
     companion object {
-        val Placeholder = Album(name = "", modifiedAt = 0, files = emptyList())
+        val Placeholder = Album(name = "", modifiedAt = 0, parentAlbumUuid = null, files = emptyList())
     }
 }

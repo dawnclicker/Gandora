@@ -83,11 +83,16 @@ interface PhotoDao {
 
     // Sorted
 
-    fun observeAllSorted(sort: Sort): Flow<List<Photo>> {
-        val query = SimpleSQLiteQuery("SELECT * FROM photo ORDER BY ${sort.field.columnName} ${sort.order.sql}")
-
+    fun observeAllSorted(sort: Sort, favoritesOnly: Boolean = false): Flow<List<Photo>> {
+        val where = if (favoritesOnly) "WHERE ${Photo.COL_IS_FAVORITE} = 1 " else ""
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM ${Photo.TABLE_NAME} $where ORDER BY ${sort.field.columnName} ${sort.order.sql}"
+        )
         return observeAll(query)
     }
+
+    @Query("UPDATE ${Photo.TABLE_NAME} SET ${Photo.COL_IS_FAVORITE} = :favorite WHERE photo_uuid = :uuid")
+    suspend fun setFavorite(uuid: String, favorite: Boolean)
 
     @RawQuery(observedEntities = [Photo::class])
     fun observeAll(query: SupportSQLiteQuery): Flow<List<Photo>>

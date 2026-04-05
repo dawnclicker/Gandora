@@ -28,5 +28,6 @@ sealed interface GalleryUiState {
         val photos: List<PhotoTile> = emptyList(),
         val showAlbumSelectionDialog: Boolean = false,
         val sort: Sort,
+        val showFavoritesOnly: Boolean = false,
     ) : GalleryUiState
 }

@@ -59,12 +59,14 @@ data class PhotoBackup(
     val type: PhotoType,
     val size: Long,
     val uuid: String,
+    val isFavorite: Boolean = false,
 )
 
 data class AlbumBackup(
     val uuid: String,
     val name: String,
     val modifiedAt: Long?,
+    val parentAlbumUuid: String? = null,
 )
 
 data class AlbumPhotoRefBackup(
