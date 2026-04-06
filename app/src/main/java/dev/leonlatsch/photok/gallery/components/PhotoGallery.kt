@@ -2,6 +2,7 @@ package dev.leonlatsch.photok.gallery.components
 
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.ui.zIndex // new
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
