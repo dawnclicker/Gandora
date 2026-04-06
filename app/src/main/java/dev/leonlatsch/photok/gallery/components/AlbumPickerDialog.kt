@@ -18,30 +18,18 @@ package dev.leonlatsch.photok.gallery.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.leonlatsch.photok.R
-import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.gallery.albums.ui.compose.CreateAlbumDialog
 import dev.leonlatsch.photok.uicomponnets.Dialogs
 
@@ -91,16 +79,12 @@ private fun AlbumPickerContent(
                     style = MaterialTheme.typography.headlineSmall
                 )
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-            ),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             actions = {
-                IconButton(
-                    onClick = { showCreateDialog = true }
-                ) {
+                IconButton(onClick = { showCreateDialog = true }) {
                     Icon(
                         painter = painterResource(R.drawable.ic_add),
-                        contentDescription = stringResource(R.string.magic_fab_new_album_label),
+                        contentDescription = null,
                     )
                 }
             }
@@ -110,9 +94,10 @@ private fun AlbumPickerContent(
         val addedMessage = stringResource(R.string.gallery_albums_photos_added, selectedItemIds.size)
 
         AlbumsGrid(
-            albums = uiState.albums, // Fixed: Use uiState.albums
-            onAlbumClicked = { albumId -> // Fixed: Implement the click logic
-                handleUiEvent(AlbumPickerUiEvent.AddPhotosToAlbum(albumId, selectedItemIds))
+            albums = uiState.albums,
+            onAlbumClicked = { albumId ->
+                // This event name might be PickAlbum or AddPhotosToAlbum depending on your ViewModel
+                handleUiEvent(AlbumPickerUiEvent.PickAlbum(albumId, selectedItemIds))
                 Dialogs.showShortToast(context, addedMessage)
                 onAlbumSelected()
                 onDismissRequest()
@@ -121,44 +106,10 @@ private fun AlbumPickerContent(
             onSetAlbumCover = { _, _ -> },
             modifier = Modifier.fillMaxWidth()
         )
-}
+    }
 
-@Preview(showBackground = true)
-@Composable
-private fun AlbumPickerPreview() {
-    AlbumPickerContent(
-        uiState = AlbumPickerUiState(
-            albums = listOf(
-                AlbumItem(
-                    id = "1",
-                    name = "Album 1",
-                    itemCount = 10,
-                ),
-                AlbumItem(
-                    id = "2",
-                    name = "Album 2",
-                    itemCount = 20,
-                ),
-                AlbumItem(
-                    id = "3",
-                    name = "Album 3",
-                    itemCount = 30,
-                ),
-                AlbumItem(
-                    id = "4",
-                    name = "Album 4",
-                    itemCount = 40
-                ),
-                AlbumItem(
-                    id = "5",
-                    name = "Album 5",
-                    itemCount = 50
-                ),
-            ),
-        ),
-        selectedItemIds = emptyList(),
-        handleUiEvent = {},
-        onDismissRequest = {},
-        onAlbumSelected = {},
+    CreateAlbumDialog(
+        show = showCreateDialog,
+        onDismissRequest = { showCreateDialog = false },
     )
 }
