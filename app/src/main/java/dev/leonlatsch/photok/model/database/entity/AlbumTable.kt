@@ -29,6 +29,10 @@ data class AlbumTable(
     val uuid: String = UUID.randomUUID().toString(),
     @ColumnInfo(name = "modified_at", defaultValue = "0")
     val modifiedAt: Long,
+    @ColumnInfo(name = "priority", defaultValue = "0")
+    val priority: Int = 0,
+    @ColumnInfo(name = "custom_thumbnail_uri", defaultValue = "NULL")
+    val customThumbnailUri: String? = null,
     @ColumnInfo(name = COL_PARENT_ALBUM_UUID, index = true, defaultValue = "NULL")
     val parentAlbumUuid: String? = null,
 ) {

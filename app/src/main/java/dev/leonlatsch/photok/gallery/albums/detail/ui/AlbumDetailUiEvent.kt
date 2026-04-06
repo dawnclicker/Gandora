@@ -31,5 +31,7 @@ sealed interface AlbumDetailUiEvent {
     data class RenameAlbum(val newName: String) : AlbumDetailUiEvent
     data class OnImportChoice(val choice: ImportChoice) : AlbumDetailUiEvent
     data class SortChanged(val sort: Sort) : AlbumDetailUiEvent
+    data class ReorderChildAlbums(val fromIndex: Int, val toIndex: Int) : AlbumDetailUiEvent
+    data class ChangeThumbnail(val albumUUID: String, val thumbnailUri: Uri) : AlbumDetailUiEvent
     data object ToggleFavoritesFilter : AlbumDetailUiEvent
 }

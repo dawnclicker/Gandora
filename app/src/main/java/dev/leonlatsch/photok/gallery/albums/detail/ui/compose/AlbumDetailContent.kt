@@ -78,6 +78,12 @@ fun AlbumDetailContent(
         onImportChoice = {
             handleUiEvent(AlbumDetailUiEvent.OnImportChoice(it))
         },
+        onAlbumReordered = { from, to ->
+            handleUiEvent(AlbumDetailUiEvent.ReorderChildAlbums(from, to))
+        },
+        onAlbumChangeThumbnail = { uuid, uri ->
+            handleUiEvent(AlbumDetailUiEvent.ChangeThumbnail(uuid, uri))
+        },
         additionalMultiSelectionActions = {
             HorizontalDivider()
             DropdownMenuItem(

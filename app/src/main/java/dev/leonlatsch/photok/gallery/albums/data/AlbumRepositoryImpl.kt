@@ -195,6 +195,14 @@ class AlbumRepositoryImpl @Inject constructor(
         albumDao.renameAlbum(albumUUID = albumUUID, newName = newName)
     }
 
+    override suspend fun updateAlbumThumbnail(albumUUID: String, customThumbnailUri: String) {
+        albumDao.updateAlbumThumbnailUri(albumUUID = albumUUID, uri = customThumbnailUri)
+    }
+
+    override suspend fun updateAlbumPriorities(priorities: Map<String, Int>) {
+        albumDao.updateAlbumPriorities(priorities)
+    }
+
     override suspend fun getAllAlbumPhotoLinks(): List<AlbumPhotoRef> =
         albumDao.getAllAlbumPhotoRefs().map { ref ->
             ref.toDomain()

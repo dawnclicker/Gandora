@@ -16,6 +16,7 @@
 
 package dev.leonlatsch.photok.gallery.components
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.LocalActivity
@@ -44,15 +45,15 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.consumeAllChanges
+import androidx.compose.foundation.input.pointer.pointerInput
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,9 +66,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -75,6 +77,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.DropdownMenuItem
 import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.model.database.entity.PhotoType
@@ -103,6 +111,8 @@ fun PhotoGallery(
     modifier: Modifier = Modifier,
     folderTiles: List<AlbumItem> = emptyList(),
     onOpenFolder: (String) -> Unit = {},
+    onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
+    onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
 ) {
     val activity = LocalActivity.current
     var importMenuBottomSheetVisible by remember { mutableStateOf(false) }
@@ -122,6 +132,8 @@ fun PhotoGallery(
             photos = photos,
             multiSelectionState = multiSelectionState,
             openPhoto = onOpenPhoto,
+            onAlbumReordered = onAlbumReordered,
+            onAlbumChangeThumbnail = onAlbumChangeThumbnail,
         )
 
         AnimatedVisibility(
@@ -247,6 +259,7 @@ fun PhotoGallery(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PhotoGrid(
     folderTiles: List<AlbumItem>,
@@ -255,23 +268,116 @@ private fun PhotoGrid(
     multiSelectionState: MultiSelectionState,
     openPhoto: (PhotoTile) -> Unit,
     modifier: Modifier = Modifier,
+    onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
+    onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
 ) {
     val gridState: LazyGridState = rememberLazyGridState()
+    val density = LocalDensity.current
+    val activity = LocalActivity.current
 
-    val columnCount = when (LocalConfiguration.current.orientation) {
-        Configuration.ORIENTATION_PORTRAIT -> PORTRAIT_COLUMN_COUNT
-        Configuration.ORIENTATION_LANDSCAPE -> LANDSCAPE_COLUMN_COUNT
-        else -> PORTRAIT_COLUMN_COUNT
+    var visibleFolderTiles by remember { mutableStateOf(folderTiles) }
+    LaunchedEffect(folderTiles) {
+        visibleFolderTiles = folderTiles
     }
 
+    var draggingAlbumId by remember { mutableStateOf<String?>(null) }
+    var dragStartIndex by remember { mutableStateOf<Int?>(null) }
+    var dragDistance by remember { mutableStateOf(0f) }
+    var showContextMenuForAlbumId by remember { mutableStateOf<String?>(null) }
+    var pendingThumbnailAlbumId by remember { mutableStateOf<String?>(null) }
+
+    val pickThumbnailLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val albumId = pendingThumbnailAlbumId
+        pendingThumbnailAlbumId = null
+        if (uri == null || albumId == null) return@rememberLauncherForActivityResult
+
+        activity.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        onAlbumChangeThumbnail(albumId, uri)
+    }
+
+    val dragThreshold = remember { with(density) { 8.dp.toPx() } }
     val haptic = LocalHapticFeedback.current
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(columnCount),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .pointerInput(visibleFolderTiles, gridState) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        val touchedItem = gridState.layoutInfo.visibleItemsInfo
+                            .firstOrNull { item ->
+                                offset.x >= item.offset.x &&
+                                    offset.x <= item.offset.x + item.size.width &&
+                                    offset.y >= item.offset.y &&
+                                    offset.y <= item.offset.y + item.size.height
+                            }
+                        val albumId = touchedItem?.key?.toString()?.removePrefix("album_")
+                        val index = albumId?.let { id -> visibleFolderTiles.indexOfFirst { it.id == id } }
+                        if (albumId != null && index != null && index >= 0) {
+                            draggingAlbumId = albumId
+                            dragStartIndex = index
+                            dragDistance = 0f
+                        }
+                    },
+                    onDrag = { change, dragAmount ->
+                        if (draggingAlbumId == null) return@detectDragGesturesAfterLongPress
+                        change.consumeAllChanges()
+                        dragDistance += abs(dragAmount.y) + abs(dragAmount.x)
+
+                        val pointerPosition = change.position
+                        val targetItem = gridState.layoutInfo.visibleItemsInfo
+                            .firstOrNull { item ->
+                                pointerPosition.x >= item.offset.x &&
+                                    pointerPosition.x <= item.offset.x + item.size.width &&
+                                    pointerPosition.y >= item.offset.y &&
+                                    pointerPosition.y <= item.offset.y + item.size.height
+                            }
+
+                        val targetId = targetItem?.key?.toString()?.removePrefix("album_")
+                        if (targetId == null) return@detectDragGesturesAfterLongPress
+                        val currentIndex = visibleFolderTiles.indexOfFirst { it.id == draggingAlbumId }
+                        val targetIndex = visibleFolderTiles.indexOfFirst { it.id == targetId }
+                        if (currentIndex != -1 && targetIndex != -1 && targetIndex != currentIndex) {
+                            visibleFolderTiles = visibleFolderTiles.toMutableList().apply {
+                                add(targetIndex, removeAt(currentIndex))
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        val albumId = draggingAlbumId
+                        val startIndex = dragStartIndex
+                        val endIndex = albumId?.let { id -> visibleFolderTiles.indexOfFirst { it.id == id } }
+                        if (albumId != null && dragDistance < dragThreshold) {
+                            showContextMenuForAlbumId = albumId
+                        } else if (
+                            albumId != null &&
+                            startIndex != null &&
+                            endIndex != null &&
+                            startIndex != endIndex
+                        ) {
+                            onAlbumReordered(startIndex, endIndex)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        draggingAlbumId = null
+                        dragStartIndex = null
+                        dragDistance = 0f
+                    },
+                    onDragCancel = {
+                        draggingAlbumId = null
+                        dragStartIndex = null
+                        dragDistance = 0f
+                    }
+                )
+            },
         state = gridState
     ) {
-        items(folderTiles, key = { "album_${it.id}" }) { album ->
+        items(visibleFolderTiles, key = { "album_${it.id}" }) { album ->
             AlbumTile(
                 album = album,
                 onAlbumClicked = { id ->
@@ -280,6 +386,7 @@ private fun PhotoGrid(
                     }
                 },
                 modifier = Modifier.animateItem(),
+                isDragging = album.id == draggingAlbumId,
             )
         }
         items(photos, key = { it.uuid }) {
@@ -310,6 +417,32 @@ private fun PhotoGrid(
                 modifier = Modifier.animateItem(),
             )
         }
+    }
+
+    if (showContextMenuForAlbumId != null) {
+        AlertDialog(
+            onDismissRequest = { showContextMenuForAlbumId = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingThumbnailAlbumId = showContextMenuForAlbumId
+                    showContextMenuForAlbumId = null
+                    pickThumbnailLauncher.launch(arrayOf("image/*"))
+                }) {
+                    Text(stringResource(R.string.album_change_thumbnail))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showContextMenuForAlbumId = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            },
+            title = {
+                Text(stringResource(R.string.album_thumbnail_menu_title))
+            },
+            text = {
+                Text(stringResource(R.string.album_thumbnail_menu_description))
+            }
+        )
     }
 }
 

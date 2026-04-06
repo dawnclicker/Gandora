@@ -32,6 +32,7 @@ data class AlbumItem(
     val id: String,
     val name: String,
     val itemCount: Int,
+    val customThumbnailUri: String? = null,
     val albumCover: AlbumCover? = null,
 )
 

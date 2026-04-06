@@ -32,7 +32,7 @@ import dev.leonlatsch.photok.model.database.entity.AlbumTable
 import dev.leonlatsch.photok.model.database.entity.Photo
 import dev.leonlatsch.photok.model.database.ref.AlbumPhotoCrossRefTable
 
-private const val DATABASE_VERSION = 6
+private const val DATABASE_VERSION = 7
 const val DATABASE_NAME = "photok.db"
 
 /**
@@ -66,6 +66,10 @@ const val DATABASE_NAME = "photok.db"
         AutoMigration(
             from = 4,
             to = 5,
+        ),
+        AutoMigration(
+            from = 6,
+            to = 7,
         ),
     ]
 )

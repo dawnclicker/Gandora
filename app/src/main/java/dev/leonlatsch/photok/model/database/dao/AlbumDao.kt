@@ -56,7 +56,7 @@ internal fun createScopedFavoritesPhotosQuery(subtreeAlbumUuids: List<String>, s
 @Language("roomsql")
 const val SELECT_ALL_ALBUMS_QUERY = """
     SELECT * FROM album
-    ORDER BY modified_at DESC
+    ORDER BY priority ASC, modified_at DESC
 """
 
 @Dao
@@ -89,13 +89,26 @@ abstract class AlbumDao {
         """
         SELECT * FROM album
         WHERE parent_album_uuid = :parentUuid
-        ORDER BY modified_at DESC
+        ORDER BY priority ASC, modified_at DESC
         """
     )
     abstract fun observeChildAlbums(parentUuid: String): Flow<List<AlbumTable>>
 
     @Query("UPDATE album SET ${AlbumTable.COL_PARENT_ALBUM_UUID} = :newParentUuid WHERE album_uuid = :albumUuid")
     abstract suspend fun updateParentAlbum(albumUuid: String, newParentUuid: String?)
+
+    @Query("UPDATE album SET priority = :priority WHERE album_uuid = :albumUuid")
+    abstract suspend fun updateAlbumPriority(albumUuid: String, priority: Int)
+
+    @Transaction
+    open suspend fun updateAlbumPriorities(priorities: Map<String, Int>) {
+        priorities.forEach { (albumUuid, priority) ->
+            updateAlbumPriority(albumUuid, priority)
+        }
+    }
+
+    @Query("UPDATE album SET custom_thumbnail_uri = :uri WHERE album_uuid = :albumUuid")
+    abstract suspend fun updateAlbumThumbnailUri(albumUuid: String, uri: String?)
 
     @Query(
         """

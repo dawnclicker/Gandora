@@ -19,6 +19,10 @@ package dev.leonlatsch.photok.gallery.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +30,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,8 +41,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.colorResource
@@ -43,6 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.transcoding.compose.model.EncryptedImageRequestData
@@ -53,10 +64,14 @@ fun AlbumTile(
     album: AlbumItem,
     onAlbumClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
-    ) {
+    isDragging: Boolean = false,
+) {
+    val animatedScale = if (isDragging) 1.04f else 1f
     Card(
         modifier = modifier
             .padding(12.dp)
+            .graphicsLayer(scaleX = animatedScale, scaleY = animatedScale)
+            .shadow(if (isDragging) 14.dp else 0.dp, RoundedCornerShape(16.dp))
             .clickable { onAlbumClicked(album.id) }
     ) {
         Box {
@@ -64,9 +79,19 @@ fun AlbumTile(
                 .fillMaxSize()
                 .aspectRatio(1f)
 
-            if (album.albumCover == null || LocalInspectionMode.current) {
+            val imageModifier = contentModifier
+                .clip(RoundedCornerShape(12.dp))
+
+            if (album.customThumbnailUri != null && !LocalInspectionMode.current) {
+                Image(
+                    painter = rememberAsyncImagePainter(Uri.parse(album.customThumbnailUri)),
+                    contentDescription = stringResource(R.string.common_thumbnail),
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop,
+                )
+            } else if (album.albumCover == null || LocalInspectionMode.current) {
                 Box(
-                    modifier = contentModifier.background(MaterialTheme.colorScheme.outline)
+                    modifier = imageModifier.background(MaterialTheme.colorScheme.outline)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_folder),
@@ -88,7 +113,7 @@ fun AlbumTile(
                 Image(
                     painter = rememberEncryptedImagePainter(requestData),
                     contentDescription = album.albumCover.filename,
-                    modifier = contentModifier,
+                    modifier = imageModifier,
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -125,6 +150,18 @@ fun AlbumTile(
                     .align(Alignment.BottomEnd)
                     .padding(8.dp)
             )
+
+            if (isDragging) {
+                Icon(
+                    imageVector = Icons.Default.DragHandle,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.75f),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(20.dp)
+                )
+            }
         }
     }
 }

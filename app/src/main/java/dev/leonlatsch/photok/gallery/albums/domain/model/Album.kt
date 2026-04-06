@@ -23,6 +23,8 @@ data class Album(
     val uuid: String = UUID.randomUUID().toString(),
     val name: String,
     val modifiedAt: Long,
+    val priority: Int = 0,
+    val customThumbnailUri: String? = null,
     val parentAlbumUuid: String? = null,
     val files: List<Photo>,
 ) {

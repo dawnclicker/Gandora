@@ -39,6 +39,8 @@ fun AlbumTable.toDomain(): Album = Album(
     uuid = uuid,
     name = name,
     modifiedAt = modifiedAt,
+    priority = priority,
+    customThumbnailUri = customThumbnailUri,
     parentAlbumUuid = parentAlbumUuid,
     files = emptyList(),
 )
@@ -47,6 +49,8 @@ fun Album.toData(): AlbumTable = AlbumTable(
     name = name,
     modifiedAt = modifiedAt,
     uuid = uuid,
+    priority = priority,
+    customThumbnailUri = customThumbnailUri,
     parentAlbumUuid = parentAlbumUuid,
 )
 
@@ -54,6 +58,7 @@ fun Album.toUi(): AlbumItem = AlbumItem(
     id = uuid,
     name = name,
     itemCount = files.size,
+    customThumbnailUri = customThumbnailUri,
     albumCover = files.firstOrNull()?.let { firstPhoto ->
         val albumCoverFileName = if (firstPhoto.type.isVideo) {
             firstPhoto.internalVideoPreviewFileName

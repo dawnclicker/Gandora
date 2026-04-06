@@ -79,6 +79,9 @@
     <string name="gallery_favorites_toggle">Favorites</string>
     <string name="gallery_albums_photos_added">%1$d items added</string>
     <string name="magic_fab_new_album_label">New Album</string>
+    <string name="album_thumbnail_menu_title">Folder actions</string>
+    <string name="album_thumbnail_menu_description">Long press detected. Choose an action for this folder.</string>
+    <string name="album_change_thumbnail">Change thumbnail</string>
 
     <!-- IMPORT MENU -->
     <string name="import_menu_fab_label">Import</string>

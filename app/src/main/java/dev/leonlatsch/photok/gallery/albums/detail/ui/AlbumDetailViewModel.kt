@@ -169,6 +169,29 @@ class AlbumDetailViewModel @AssistedInject constructor(
                 sortRepository.updateSortFor(albumUuid = albumUUID, sort = event.sort)
             }
 
+            is AlbumDetailUiEvent.ReorderChildAlbums -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val currentOrder = childAlbumsFlow.value.map { it.id }.toMutableList()
+                    if (event.fromIndex in currentOrder.indices && event.toIndex in currentOrder.indices) {
+                        val moved = currentOrder.removeAt(event.fromIndex)
+                        currentOrder.add(event.toIndex, moved)
+                        val updatedPriorities = currentOrder
+                            .mapIndexed { index, albumId -> albumId to index }
+                            .toMap()
+                        albumsRepository.updateAlbumPriorities(updatedPriorities)
+                    }
+                }
+            }
+
+            is AlbumDetailUiEvent.ChangeThumbnail -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    albumsRepository.updateAlbumThumbnail(
+                        albumUUID = event.albumUUID,
+                        customThumbnailUri = event.thumbnailUri.toString(),
+                    )
+                }
+            }
+
             AlbumDetailUiEvent.ToggleFavoritesFilter -> {
                 favoritesOnlyFlow.update { !it }
             }
