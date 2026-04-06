@@ -85,7 +85,7 @@ fun AlbumTile(
             if (album.customThumbnailUri != null && !LocalInspectionMode.current) {
                 Image(
                     painter = rememberAsyncImagePainter(Uri.parse(album.customThumbnailUri)),
-                    contentDescription = stringResource(R.string.common_thumbnail),
+                    contentDescription = null,
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop,
                 )

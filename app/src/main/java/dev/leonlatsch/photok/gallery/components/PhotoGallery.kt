@@ -293,7 +293,7 @@ private fun PhotoGrid(
         pendingThumbnailAlbumId = null
         if (uri == null || albumId == null) return@rememberLauncherForActivityResult
 
-        activity.contentResolver.takePersistableUriPermission(
+        activity?.contentResolver?.takePersistableUriPermission(
             uri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION
         )
@@ -327,7 +327,7 @@ private fun PhotoGrid(
                     },
                     onDrag = { change, dragAmount ->
                         if (draggingAlbumId == null) return@detectDragGesturesAfterLongPress
-                        change.consumeAllChanges()
+                        change.consume()
                         dragDistance += abs(dragAmount.y) + abs(dragAmount.x)
 
                         val pointerPosition = change.position
@@ -526,8 +526,8 @@ private fun GalleryPhotoTile(
                     .dropShadow(
                         shape = RoundedCornerShape(12.dp),
                         shadow = Shadow(
-                            radius = 6.dp,
-                            alpha = 0.3f
+                            color = Color.Black.copy(alpha = 0.3f),
+                            blurRadius = 6.dp
                         )
                     )
             )
@@ -550,8 +550,8 @@ private fun GalleryPhotoTile(
                     .dropShadow(
                         shape = CircleShape,
                         shadow = Shadow(
-                            radius = 4.dp,
-                            alpha = 0.45f
+                            color = Color.Black.copy(alpha = 0.45f),
+                            blurRadius = 4.dp
                         )
                     )
             )

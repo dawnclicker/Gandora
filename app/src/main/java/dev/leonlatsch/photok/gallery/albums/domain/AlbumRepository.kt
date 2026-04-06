@@ -40,6 +40,6 @@ interface AlbumRepository {
     suspend fun rename(albumUUID: String, newName: String)
     suspend fun getAllAlbumPhotoLinks(): List<AlbumPhotoRef>
 
-    suspend fun updateAlbumThumbnail(albumUUID: String, customThumbnailUri: String)
+    suspend fun updateAlbumThumbnail(albumUuid: String, customThumbnailUri: String)
     suspend fun updateAlbumPriorities(priorities: Map<String, Int>)
 }

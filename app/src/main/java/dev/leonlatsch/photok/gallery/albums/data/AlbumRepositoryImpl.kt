@@ -195,8 +195,8 @@ class AlbumRepositoryImpl @Inject constructor(
         albumDao.renameAlbum(albumUUID = albumUUID, newName = newName)
     }
 
-    override suspend fun updateAlbumThumbnail(albumUUID: String, customThumbnailUri: String) {
-        albumDao.updateAlbumThumbnailUri(albumUUID = albumUUID, uri = customThumbnailUri)
+    override suspend fun updateAlbumThumbnail(albumUuid: String, customThumbnailUri: String) {
+        albumDao.updateAlbumThumbnailUri(albumUuid = albumUuid, uri = customThumbnailUri)
     }
 
     override suspend fun updateAlbumPriorities(priorities: Map<String, Int>) {
