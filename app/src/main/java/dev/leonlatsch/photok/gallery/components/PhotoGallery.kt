@@ -2,8 +2,7 @@ package dev.leonlatsch.photok.gallery.components
 
 import android.content.res.Configuration
 import android.net.Uri
-import androidx.compose.ui.zIndex // new
-import androidx.activity.compose.LocalActivity
+import androidx.compose.ui.zIndex
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,10 +21,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
-import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumTile // Ensure this matches your package
 
 @Composable
 fun PhotoGallery(
@@ -53,8 +50,6 @@ fun PhotoGallery(
             multiSelectionState = multiSelectionState,
             openPhoto = onOpenPhoto,
         )
-        
-        // Note: The rest of your Fab/Dialog logic remains here in your actual file
     }
 }
 
@@ -99,7 +94,7 @@ private fun PhotoGrid(
 
             Box(
                 modifier = Modifier
-                    .zIndex(currentZIndex) // Correctly elevates the dragged item
+                    .zIndex(currentZIndex)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
@@ -112,33 +107,27 @@ private fun PhotoGrid(
                             },
                             onDragEnd = { draggedItemIndex = null },
                             onDragCancel = { draggedItemIndex = null },
-                            onDrag = { change, _ ->
-                                change.consume()
-                                // Drag-reorder logic triggers here
-                            }
+                            onDrag = { change, _ -> change.consume() }
                         )
                     }
             ) {
-                // Fix for onLongClick: Apply combinedClickable to the modifier instead
-              AlbumTile( // <--- THIS WAS MISSING
-        album = album,
-    // 1. Pass the required parameter so the component stops complaining
-    onAlbumClicked = { id -> 
-        if (!multiSelectionState.isActive.value) onOpenFolder(id) 
-    },
-    // 2. Keep the modifier for the drag-drop animations and the long-click menu
-    modifier = Modifier
-        .animateItem()
-        .combinedClickable(
-            onClick = { 
-                if (!multiSelectionState.isActive.value) onOpenFolder(album.id) 
-            },
-            onLongClick = {
-                isMenuExpanded = true
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
-        )
-)
+                AlbumTile(
+                    album = album,
+                    onAlbumClicked = { id -> 
+                        if (!multiSelectionState.isActive.value) onOpenFolder(id) 
+                    },
+                    modifier = Modifier
+                        .animateItem()
+                        .combinedClickable(
+                            onClick = { 
+                                if (!multiSelectionState.isActive.value) onOpenFolder(album.id) 
+                            },
+                            onLongClick = {
+                                isMenuExpanded = true
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        )
+                )
 
                 DropdownMenu(
                     expanded = isMenuExpanded,
@@ -156,7 +145,6 @@ private fun PhotoGrid(
                 }
             }
         }
-        
-        // Add your photos items here as before...
+        // Photos logic follows here...
     }
 }
