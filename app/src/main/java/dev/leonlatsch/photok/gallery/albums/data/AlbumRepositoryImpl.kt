@@ -30,11 +30,7 @@ import dev.leonlatsch.photok.sort.domain.SortConfig
 import dev.leonlatsch.photok.sort.domain.SortRepository
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
@@ -49,21 +45,20 @@ class AlbumRepositoryImpl @Inject constructor(
     override fun observeAllAlbumsWithPhotos(): Flow<List<Album>> {
         return sortRepository.observeSortsForAlbums().flatMapLatest { sorts ->
             albumDao.observeAllAlbums().map { albums ->
-                albums
-                    .filter { it.parentAlbumUuid == null }
-                    .map { album ->
-                        val photos = albumDao.getPhotosForAlbum(
-                            album.uuid,
-                            sorts[album.uuid] ?: SortConfig.Album.default,
-                        )
-                        album.toDomain().copy(files = photos)
-                    }
+                albums.filter { it.parentAlbumUuid == null }.map { album ->
+                    val photos = albumDao.getPhotosForAlbum(
+                        album.uuid,
+                        sorts[album.uuid] ?: SortConfig.Album.default,
+                    )
+                    album.toDomain().copy(files = photos)
+                }
             }
         }
     }
 
-    override suspend fun getAlbums(): List<Album> = albumDao.getAllAlbums()
-        .map { album -> album.toDomain() }
+    override suspend fun getAlbums(): List<Album> = albumDao.getAllAlbums().map { it.toDomain() }
+
+    override fun observeAllAlbums(): Flow<List<AlbumTable>> = albumDao.observeAllAlbums()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeAlbumWithPhotos(uuid: String, sort: Sort, favoritesOnly: Boolean): Flow<Album> {
@@ -71,24 +66,14 @@ class AlbumRepositoryImpl @Inject constructor(
             return albumDao.observeAlbumWithPhotos(uuid, sort, false, emptyList())
                 .map { it?.toDomain() ?: Album.Placeholder }
         }
-        return combine(
-            albumDao.observeAlbum(uuid),
-            albumDao.observeAllAlbums(),
-        ) { album, allAlbums ->
-            Pair(album, allAlbums)
-        }.flatMapLatest { (album, allAlbums) ->
-            if (album == null) {
-                flowOf(null)
-            } else {
-                val subtree = buildSubtreeUuids(album.uuid, allAlbums)
-                albumDao.observeAlbumWithPhotos(
-                    album.uuid,
-                    sort,
-                    true,
-                    subtree,
-                )
-            }
-        }.map { it?.toDomain() ?: Album.Placeholder }
+        return combine(albumDao.observeAlbum(uuid), albumDao.observeAllAlbums()) { album, all -> album to all }
+            .flatMapLatest { (album, all) ->
+                if (album == null) flowOf(null)
+                else {
+                    val subtree = buildSubtreeUuids(album.uuid, all)
+                    albumDao.observeAlbumWithPhotos(album.uuid, sort, true, subtree)
+                }
+            }.map { it?.toDomain() ?: Album.Placeholder }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -96,122 +81,91 @@ class AlbumRepositoryImpl @Inject constructor(
         return sortRepository.observeSortsForAlbums().flatMapLatest { sorts ->
             albumDao.observeChildAlbums(parentUuid).map { tables ->
                 tables.map { table ->
-                    val photos = albumDao.getPhotosForAlbum(
-                        table.uuid,
-                        sorts[table.uuid] ?: SortConfig.Album.default,
-                    )
+                    val photos = albumDao.getPhotosForAlbum(table.uuid, sorts[table.uuid] ?: SortConfig.Album.default)
                     table.toDomain().copy(files = photos)
                 }
             }
         }
     }
 
-    override suspend fun getPhotosForAlbum(uuid: String, favoritesOnly: Boolean): List<Photo> =
-        withContext(IO) {
-            val sort = sortRepository.getSortForAlbum(uuid) ?: SortConfig.Album.default
-            if (!favoritesOnly) {
-                albumDao.getPhotosForAlbum(uuid, sort)
-            } else {
-                val all = albumDao.getAllAlbums()
-                val subtree = buildSubtreeUuids(uuid, all)
-                albumDao.getPhotosForAlbum(uuid, sort, true, subtree)
-            }
-        }
+    override suspend fun getPhotosForAlbum(uuid: String, favoritesOnly: Boolean): List<Photo> = withContext(IO) {
+        val sort = sortRepository.getSortForAlbum(uuid) ?: SortConfig.Album.default
+        if (!favoritesOnly) albumDao.getPhotosForAlbum(uuid, sort)
+        else albumDao.getPhotosForAlbum(uuid, sort, true, buildSubtreeUuids(uuid, albumDao.getAllAlbums()))
+    }
 
     override suspend fun createAlbum(album: Album): Result<Album> =
-        when (albumDao.insert(album.toData())) {
-            -1L -> Result.failure(IOException())
-            else -> Result.success(album.copy())
-        }
+        if (albumDao.insert(album.toData()) == -1L) Result.failure(IOException()) else Result.success(album.copy())
 
-    override suspend fun deleteAlbum(album: Album, permanentlyDeleteFiles: Boolean): Result<Unit> =
-        withContext(IO) {
-            try {
-                val all = albumDao.getAllAlbums()
-                val removeOrder = postOrderAlbumUuids(album.uuid, all)
-                val photoUuids = if (removeOrder.isNotEmpty()) {
-                    albumDao.getPhotoUuidsLinkedToAlbums(removeOrder)
-                } else {
-                    emptyList()
-                }
-                for (albumUuid in removeOrder) {
-                    val table = albumDao.getAlbum(albumUuid) ?: continue
-                    albumDao.removeAllPhotosFromAlbum(albumUuid)
-                    albumDao.delete(table)
-                }
-                if (permanentlyDeleteFiles) {
-                    for (p in photoUuids.distinct()) {
-                        if (albumDao.countAlbumRefsForPhoto(p) == 0) {
-                            val photo = runCatching { photoRepository.get(p) }.getOrNull() ?: continue
-                            photoRepository.safeDeletePhoto(photo)
-                        }
+    override suspend fun updateAlbums(albums: List<AlbumTable>) { albumDao.updateAlbums(albums) }
+
+    override suspend fun setCustomThumbnail(albumUuid: String, uri: String?) { albumDao.setCustomThumbnail(albumUuid, uri) }
+
+    override suspend fun deleteAlbum(album: Album, permanentlyDeleteFiles: Boolean): Result<Unit> = withContext(IO) {
+        try {
+            val all = albumDao.getAllAlbums()
+            val removeOrder = postOrderAlbumUuids(album.uuid, all)
+            val photoUuids = albumDao.getPhotoUuidsLinkedToAlbums(removeOrder)
+            removeOrder.forEach { uuid ->
+                albumDao.removeAllPhotosFromAlbum(uuid)
+                albumDao.getAlbum(uuid)?.let { albumDao.delete(it) }
+            }
+            if (permanentlyDeleteFiles) {
+                photoUuids.distinct().forEach { p ->
+                    if (albumDao.countAlbumRefsForPhoto(p) == 0) {
+                        runCatching { photoRepository.get(p) }.getOrNull()?.let { photoRepository.safeDeletePhoto(it) }
                     }
                 }
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Result.failure(e)
             }
-        }
+            Result.success(Unit)
+        } catch (e: Exception) { Result.failure(e) }
+    }
 
-    override suspend fun moveAlbum(albumUuid: String, newParentUuid: String?): Result<Unit> =
-        withContext(IO) {
-            if (newParentUuid != null) {
-                val all = albumDao.getAllAlbums()
-                if (wouldCreateCycle(movingUuid = albumUuid, targetParent = newParentUuid, all = all)) {
-                    return@withContext Result.failure(IllegalStateException("Cannot move album: would create a cycle"))
-                }
-            }
+    override suspend fun moveAlbum(albumUuid: String, newParentUuid: String?): Result<Unit> = withContext(IO) {
+        if (newParentUuid != null && wouldCreateCycle(albumUuid, newParentUuid, albumDao.getAllAlbums())) {
+            Result.failure(IllegalStateException("Cycle detected"))
+        } else {
             albumDao.updateParentAlbum(albumUuid, newParentUuid)
             Result.success(Unit)
         }
-
-    override suspend fun deleteAll() {
-        albumDao.deleteAll()
     }
 
-    override suspend fun link(photoUUIDs: List<String>, albumUUID: String) {
-        albumDao.link(photoUUIDs, albumUUID)
-    }
-
-    override suspend fun link(ref: AlbumPhotoRef) {
-        with(ref) {
-            albumDao.link(
-                photoId = photoUUID,
-                albumId = albumUUID,
-                linkedAt = linkedAt,
-            )
-        }
-    }
-
-    override suspend fun unlink(photoUUIDs: List<String>, uuid: String) {
-        albumDao.unlink(photoUUIDs, uuid)
-    }
-
-    override suspend fun unlinkAll() {
-        albumDao.unlinkAll()
-    }
-
-    override suspend fun rename(albumUUID: String, newName: String) {
-        albumDao.renameAlbum(albumUUID = albumUUID, newName = newName)
-    }
-
-    override suspend fun getAllAlbumPhotoLinks(): List<AlbumPhotoRef> =
-        albumDao.getAllAlbumPhotoRefs().map { ref ->
-            ref.toDomain()
-        }
-
-    // --- NEW IMPLEMENTATIONS ---
-
-    override fun observeAllAlbums(): Flow<List<AlbumTable>> =
-        albumDao.observeAllAlbums()
-
-    override suspend fun updateAlbums(albums: List<AlbumTable>) = withContext(IO) {
-        albumDao.updateAlbums(albums)
-    }
-
-    override suspend fun setCustomThumbnail(albumUuid: String, uri: String?) = withContext(IO) {
-        albumDao.setCustomThumbnail(albumUuid, uri)
-    }
+    override suspend fun deleteAll() = albumDao.deleteAll()
+    override suspend fun link(photoUUIDs: List<String>, albumUUID: String) = albumDao.link(photoUUIDs, albumUUID)
+    override suspend fun link(ref: AlbumPhotoRef) = albumDao.link(ref.photoUUID, ref.albumUUID, ref.linkedAt)
+    override suspend fun unlink(photoUUIDs: List<String>, uuid: String) = albumDao.unlink(photoUUIDs, uuid)
+    override suspend fun unlinkAll() = albumDao.unlinkAll()
+    override suspend fun rename(albumUUID: String, newName: String) = albumDao.renameAlbum(albumUUID, newName)
+    override suspend fun getAllAlbumPhotoLinks(): List<AlbumPhotoRef> = albumDao.getAllAlbumPhotoRefs().map { it.toDomain() }
 }
 
-// ... helper functions (buildSubtreeUuids, etc) remain the same
+// HELPER FUNCTIONS (Must be outside the class)
+private fun buildSubtreeUuids(rootUuid: String, all: List<AlbumTable>): List<String> {
+    val byParent = all.groupBy { it.parentAlbumUuid }
+    val out = mutableListOf<String>()
+    val queue = ArrayDeque<String>().apply { add(rootUuid) }
+    while (queue.isNotEmpty()) {
+        val u = queue.removeFirst()
+        out.add(u)
+        byParent[u]?.forEach { queue.add(it.uuid) }
+    }
+    return out
+}
+
+private fun postOrderAlbumUuids(rootUuid: String, all: List<AlbumTable>): List<String> {
+    val childrenByParent = all.groupBy { it.parentAlbumUuid }
+    val out = mutableListOf<String>()
+    fun dfs(u: String) { childrenByParent[u]?.forEach { dfs(it.uuid) }; out.add(u) }
+    dfs(rootUuid)
+    return out
+}
+
+private fun wouldCreateCycle(movingUuid: String, targetParent: String, all: List<AlbumTable>): Boolean {
+    var curr: String? = targetParent
+    while (curr != null) {
+        if (curr == movingUuid) return true
+        curr = all.find { it.uuid == curr }?.parentAlbumUuid
+    }
+    return false
+}
+
