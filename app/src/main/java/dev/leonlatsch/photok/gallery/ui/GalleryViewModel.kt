@@ -1,17 +1,17 @@
 /*
- *   Copyright 2020–2026 Leon Latsch
+ * Copyright 2020–2026 Leon Latsch
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package dev.leonlatsch.photok.gallery.ui
@@ -24,6 +24,8 @@ import dev.leonlatsch.photok.gallery.components.ImportChoice
 import dev.leonlatsch.photok.gallery.components.PhotoTile
 import dev.leonlatsch.photok.gallery.ui.navigation.GalleryNavigationEvent
 import dev.leonlatsch.photok.gallery.ui.navigation.PhotoAction
+import dev.leonlatsch.photok.model.database.entity.AlbumTable
+import dev.leonlatsch.photok.model.repositories.AlbumRepository
 import dev.leonlatsch.photok.model.repositories.ImportSource
 import dev.leonlatsch.photok.model.repositories.PhotoRepository
 import dev.leonlatsch.photok.sort.domain.SortConfig
@@ -44,7 +46,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    photoRepository: PhotoRepository,
+    private val photoRepository: PhotoRepository,
+    private val albumRepository: AlbumRepository, // Added repository
     private val galleryUiStateFactory: GalleryUiStateFactory,
     private val sortRepository: SortRepository,
 ) : ViewModel() {
@@ -53,6 +56,9 @@ class GalleryViewModel @Inject constructor(
 
     private val favoritesOnly = MutableStateFlow(false)
     val showFavoritesOnly: StateFlow<Boolean> = favoritesOnly.asStateFlow()
+
+    // NEW: Local state for albums to handle drag-and-drop smoothly
+    private val _albums = MutableStateFlow<List<AlbumTable>>(emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val photosFlow = combine(sortFlow, favoritesOnly) { sort, fav ->
@@ -63,18 +69,55 @@ class GalleryViewModel @Inject constructor(
 
     private val showAlbumSelectionDialog = MutableStateFlow(false)
 
+    // INITIALIZE Albums from DB
+    init {
+        viewModelScope.launch {
+            albumRepository.observeAllAlbums().collect { 
+                _albums.value = it 
+            }
+        }
+    }
+
+    // NEW: Handle Folder Reordering
+    fun moveAlbum(fromIndex: Int, toIndex: Int) {
+        val currentList = _albums.value.toMutableList()
+        if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
+
+        val item = currentList.removeAt(fromIndex)
+        currentList.add(toIndex, item)
+
+        // Update local state immediately for UI responsiveness
+        _albums.value = currentList
+
+        // Persist to DB with updated priorities in background
+        viewModelScope.launch {
+            val updatedPriorities = currentList.mapIndexed { index, album ->
+                album.copy(priority = index)
+            }
+            albumRepository.updateAlbums(updatedPriorities)
+        }
+    }
+
+    // NEW: Handle Custom Cover Picked
+    fun setAlbumCover(albumUuid: String, uri: Uri?) {
+        viewModelScope.launch {
+            albumRepository.setCustomThumbnail(albumUuid, uri?.toString())
+        }
+    }
+
     val uiState: StateFlow<GalleryUiState> = combine(
         photosFlow,
+        _albums, // Added albums flow here
         showAlbumSelectionDialog,
         sortFlow,
         favoritesOnly,
-    ) { photos, showAlbumSelection, sort, fav ->
+    ) { photos, albums, showAlbumSelection, sort, fav ->
         galleryUiStateFactory.create(
             photos,
             showAlbumSelection,
             sort,
             fav,
-            folderTiles = emptyList(),
+            folderTiles = albums.map { it.toAlbumItem() }, // Merged: uses real album data
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), GalleryUiState.Empty)
 
@@ -140,4 +183,3 @@ class GalleryViewModel @Inject constructor(
         )
     }
 }
-
