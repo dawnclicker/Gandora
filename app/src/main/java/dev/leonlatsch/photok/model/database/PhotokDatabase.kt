@@ -67,10 +67,6 @@ const val DATABASE_NAME = "photok.db"
             from = 4,
             to = 5,
         ),
-        AutoMigration(
-            from = 6,
-            to = 7,
-        ),
     ]
 )
 @TypeConverters(Converters::class)
