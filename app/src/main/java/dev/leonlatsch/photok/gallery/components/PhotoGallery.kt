@@ -120,20 +120,24 @@ private fun PhotoGrid(
                     }
             ) {
                 // Fix for onLongClick: Apply combinedClickable to the modifier instead
-                AlbumTile(
-                    album = album,
-                    modifier = Modifier
-                        .animateItem()
-                        .combinedClickable(
-                            onClick = { 
-                                if (!multiSelectionState.isActive.value) onOpenFolder(album.id) 
-                            },
-                            onLongClick = {
-                                isMenuExpanded = true
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            }
-                        )
-                )
+                album = album,
+    // 1. Pass the required parameter so the component stops complaining
+    onAlbumClicked = { id -> 
+        if (!multiSelectionState.isActive.value) onOpenFolder(id) 
+    },
+    // 2. Keep the modifier for the drag-drop animations and the long-click menu
+    modifier = Modifier
+        .animateItem()
+        .combinedClickable(
+            onClick = { 
+                if (!multiSelectionState.isActive.value) onOpenFolder(album.id) 
+            },
+            onLongClick = {
+                isMenuExpanded = true
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        )
+)
 
                 DropdownMenu(
                     expanded = isMenuExpanded,
