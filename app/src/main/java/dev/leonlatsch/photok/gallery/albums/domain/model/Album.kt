@@ -25,8 +25,17 @@ data class Album(
     val modifiedAt: Long,
     val parentAlbumUuid: String? = null,
     val files: List<Photo>,
+    val priority: Int = 0, // Added for drag-and-drop
+    val customThumbnailUri: String? = null, // Added for custom covers
 ) {
     companion object {
-        val Placeholder = Album(name = "", modifiedAt = 0, parentAlbumUuid = null, files = emptyList())
+        val Placeholder = Album(
+            name = "", 
+            modifiedAt = 0, 
+            parentAlbumUuid = null, 
+            files = emptyList(),
+            priority = 0,
+            customThumbnailUri = null
+        )
     }
 }
