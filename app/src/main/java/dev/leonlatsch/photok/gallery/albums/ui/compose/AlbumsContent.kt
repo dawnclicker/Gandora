@@ -39,12 +39,14 @@ fun AlbumsContent(
         modifier = modifier.fillMaxSize(),
     ) {
         AlbumsGrid(
-    albums = albums,
-    onAlbumClicked = onAlbumClicked,
-    onMoveAlbum = { _, _ -> }, // Pass empty action
-    onSetAlbumCover = { _, _ -> }, // Pass empty action
-    modifier = modifier
-)
+            albums = content.albums, // Fixed: accessing 'albums' from the 'content' object
+            onAlbumClicked = { albumId -> 
+                handleUiEvent(AlbumsUiEvent.OpenAlbum(albumId)) // Fixed: mapping click to the event handler
+            },
+            onMoveAlbum = { _, _ -> }, 
+            onSetAlbumCover = { _, _ -> },
+            modifier = Modifier.fillMaxWidth() // Using the local modifier or fillMaxWidth
+        )
 
         MagicFab(
             label = stringResource(R.string.magic_fab_new_album_label),
