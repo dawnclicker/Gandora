@@ -1,17 +1,17 @@
 /*
- *   Copyright 2020–2026 Leon Latsch
+ * Copyright 2020–2026 Leon Latsch
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package dev.leonlatsch.photok.model.database.dao
@@ -24,6 +24,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import dev.leonlatsch.photok.model.database.entity.AlbumTable
@@ -56,7 +57,7 @@ internal fun createScopedFavoritesPhotosQuery(subtreeAlbumUuids: List<String>, s
 @Language("roomsql")
 const val SELECT_ALL_ALBUMS_QUERY = """
     SELECT * FROM album
-    ORDER BY modified_at DESC
+    ORDER BY priority ASC, modified_at DESC
 """
 
 @Dao
@@ -65,19 +66,20 @@ abstract class AlbumDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(album: AlbumTable): Long
 
+    @Update
+    abstract suspend fun updateAlbums(albums: List<AlbumTable>)
+
     @Delete
     abstract suspend fun delete(album: AlbumTable): Int
 
     @Query("DELETE FROM album")
     abstract suspend fun deleteAll()
 
-
     @Query(SELECT_ALL_ALBUMS_QUERY)
     abstract suspend fun getAllAlbums(): List<AlbumTable>
 
     @Query(SELECT_ALL_ALBUMS_QUERY)
     abstract fun observeAllAlbums(): Flow<List<AlbumTable>>
-
 
     @Query("SELECT * FROM album WHERE album_uuid = :uuid")
     abstract fun observeAlbum(uuid: String): Flow<AlbumTable?>
@@ -89,10 +91,13 @@ abstract class AlbumDao {
         """
         SELECT * FROM album
         WHERE parent_album_uuid = :parentUuid
-        ORDER BY modified_at DESC
+        ORDER BY priority ASC, modified_at DESC
         """
     )
     abstract fun observeChildAlbums(parentUuid: String): Flow<List<AlbumTable>>
+
+    @Query("UPDATE album SET custom_thumbnail_uri = :uri WHERE album_uuid = :uuid")
+    abstract suspend fun setCustomThumbnail(uuid: String, uri: String?)
 
     @Query("UPDATE album SET ${AlbumTable.COL_PARENT_ALBUM_UUID} = :newParentUuid WHERE album_uuid = :albumUuid")
     abstract suspend fun updateParentAlbum(albumUuid: String, newParentUuid: String?)
@@ -157,8 +162,7 @@ abstract class AlbumDao {
     @Query("SELECT * FROM album_photos_cross_ref")
     abstract suspend fun getAllAlbumPhotoRefs(): List<AlbumPhotoCrossRefTable>
 
-    // Sorting
-
+    // Sorting logic remains for photos within albums...
     open fun observeAlbumWithPhotos(
         uuid: String,
         sort: Sort,
