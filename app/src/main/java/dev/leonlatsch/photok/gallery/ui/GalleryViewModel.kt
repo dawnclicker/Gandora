@@ -107,7 +107,15 @@ class GalleryViewModel @Inject constructor(
             showAlbumSelection,
             sort,
             fav,
-            folderTiles = albums.map { it.toAlbumItem() },
+            folderTiles = albums.map { album ->
+                // Manual mapping to AlbumItem to resolve "Unresolved reference: toAlbumItem"
+                AlbumItem(
+                    id = album.uuid,
+                    name = album.name,
+                    itemCount = 0,
+                    thumbnailUri = album.customThumbnailUri
+                )
+            },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), GalleryUiState.Empty)
 
@@ -172,4 +180,3 @@ class GalleryViewModel @Inject constructor(
         )
     }
 }
-
