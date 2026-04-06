@@ -31,7 +31,9 @@ import dev.leonlatsch.photok.model.repositories.PhotoRepository
 import dev.leonlatsch.photok.sort.domain.SortConfig
 import dev.leonlatsch.photok.sort.domain.SortRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job // Added
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay // Added
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +49,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
     private val photoRepository: PhotoRepository,
-    private val albumRepository: AlbumRepository, // Added repository
+    private val albumRepository: AlbumRepository,
     private val galleryUiStateFactory: GalleryUiStateFactory,
     private val sortRepository: SortRepository,
 ) : ViewModel() {
@@ -57,8 +59,10 @@ class GalleryViewModel @Inject constructor(
     private val favoritesOnly = MutableStateFlow(false)
     val showFavoritesOnly: StateFlow<Boolean> = favoritesOnly.asStateFlow()
 
-    // NEW: Local state for albums to handle drag-and-drop smoothly
     private val _albums = MutableStateFlow<List<AlbumTable>>(emptyList())
+    
+    // NEW: Job reference to manage the stutter-fix
+    private var persistReorderJob: Job? = null
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val photosFlow = combine(sortFlow, favoritesOnly) { sort, fav ->
@@ -69,7 +73,6 @@ class GalleryViewModel @Inject constructor(
 
     private val showAlbumSelectionDialog = MutableStateFlow(false)
 
-    // INITIALIZE Albums from DB
     init {
         viewModelScope.launch {
             albumRepository.observeAllAlbums().collect { 
@@ -78,7 +81,7 @@ class GalleryViewModel @Inject constructor(
         }
     }
 
-    // NEW: Handle Folder Reordering
+    // UPDATED: Handle Folder Reordering with Stutter Fix
     fun moveAlbum(fromIndex: Int, toIndex: Int) {
         val currentList = _albums.value.toMutableList()
         if (fromIndex !in currentList.indices || toIndex !in currentList.indices) return
@@ -89,8 +92,10 @@ class GalleryViewModel @Inject constructor(
         // Update local state immediately for UI responsiveness
         _albums.value = currentList
 
-        // Persist to DB with updated priorities in background
-        viewModelScope.launch {
+        // Stutter fix: Cancel any pending save and schedule a new one
+        persistReorderJob?.cancel()
+        persistReorderJob = viewModelScope.launch {
+            delay(500) // Wait for 500ms of inactivity before writing to DB
             val updatedPriorities = currentList.mapIndexed { index, album ->
                 album.copy(priority = index)
             }
@@ -98,7 +103,6 @@ class GalleryViewModel @Inject constructor(
         }
     }
 
-    // NEW: Handle Custom Cover Picked
     fun setAlbumCover(albumUuid: String, uri: Uri?) {
         viewModelScope.launch {
             albumRepository.setCustomThumbnail(albumUuid, uri?.toString())
@@ -107,7 +111,7 @@ class GalleryViewModel @Inject constructor(
 
     val uiState: StateFlow<GalleryUiState> = combine(
         photosFlow,
-        _albums, // Added albums flow here
+        _albums,
         showAlbumSelectionDialog,
         sortFlow,
         favoritesOnly,
@@ -117,7 +121,7 @@ class GalleryViewModel @Inject constructor(
             showAlbumSelection,
             sort,
             fav,
-            folderTiles = albums.map { it.toAlbumItem() }, // Merged: uses real album data
+            folderTiles = albums.map { it.toAlbumItem() },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), GalleryUiState.Empty)
 
