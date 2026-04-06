@@ -120,7 +120,8 @@ private fun PhotoGrid(
                     }
             ) {
                 // Fix for onLongClick: Apply combinedClickable to the modifier instead
-                album = album,
+              AlbumTile( // <--- THIS WAS MISSING
+        album = album,
     // 1. Pass the required parameter so the component stops complaining
     onAlbumClicked = { id -> 
         if (!multiSelectionState.isActive.value) onOpenFolder(id) 
