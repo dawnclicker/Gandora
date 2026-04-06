@@ -20,9 +20,11 @@ import dev.leonlatsch.photok.gallery.albums.domain.model.Album
 import dev.leonlatsch.photok.gallery.albums.domain.model.AlbumPhotoRef
 import dev.leonlatsch.photok.sort.domain.Sort
 import dev.leonlatsch.photok.model.database.entity.Photo
+import dev.leonlatsch.photok.model.database.entity.AlbumTable // Added
 import kotlinx.coroutines.flow.Flow
 
 interface AlbumRepository {
+    // --- Existing Methods ---
     fun observeAllAlbumsWithPhotos(): Flow<List<Album>>
     suspend fun getAlbums(): List<Album>
     fun observeAlbumWithPhotos(uuid: String, sort: Sort, favoritesOnly: Boolean = false): Flow<Album>
@@ -32,11 +34,15 @@ interface AlbumRepository {
     suspend fun deleteAlbum(album: Album, permanentlyDeleteFiles: Boolean = false): Result<Unit>
     suspend fun moveAlbum(albumUuid: String, newParentUuid: String?): Result<Unit>
     suspend fun deleteAll()
-
     suspend fun link(photoUUIDs: List<String>, albumUUID: String)
     suspend fun link(ref: AlbumPhotoRef)
     suspend fun unlink(photoUUIDs: List<String>, uuid: String)
     suspend fun unlinkAll()
     suspend fun rename(albumUUID: String, newName: String)
     suspend fun getAllAlbumPhotoLinks(): List<AlbumPhotoRef>
+
+    // --- NEW Methods required by GalleryViewModel ---
+    fun observeAllAlbums(): Flow<List<AlbumTable>>
+    suspend fun updateAlbums(albums: List<AlbumTable>)
+    suspend fun setCustomThumbnail(albumUuid: String, uri: String?)
 }
