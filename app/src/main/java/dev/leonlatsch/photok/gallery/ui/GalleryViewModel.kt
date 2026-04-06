@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import dev.leonlatsch.photok.gallery.albums.toAlbumItem
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
