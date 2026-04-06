@@ -26,7 +26,7 @@ import dev.leonlatsch.photok.gallery.ui.navigation.GalleryNavigationEvent
 import dev.leonlatsch.photok.gallery.ui.navigation.PhotoAction
 import dev.leonlatsch.photok.model.database.entity.AlbumTable
 import dev.leonlatsch.photok.gallery.albums.domain.AlbumRepository
-import dev.leonlatsch.photok.gallery.albums.ui.compose.toAlbumItem
+import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import dev.leonlatsch.photok.model.repositories.ImportSource
 import dev.leonlatsch.photok.model.repositories.PhotoRepository
 import dev.leonlatsch.photok.sort.domain.SortConfig
