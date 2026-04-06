@@ -186,7 +186,7 @@ class AlbumDetailViewModel @AssistedInject constructor(
             is AlbumDetailUiEvent.ChangeThumbnail -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     albumsRepository.updateAlbumThumbnail(
-                        albumUUID = event.albumUUID,
+                        albumUuid = event.albumUUID,
                         customThumbnailUri = event.thumbnailUri.toString(),
                     )
                 }

@@ -46,8 +46,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.consumeAllChanges
-import androidx.compose.foundation.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -304,7 +303,13 @@ private fun PhotoGrid(
     val haptic = LocalHapticFeedback.current
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columnCount),
+        columns = GridCells.Fixed(
+            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                PORTRAIT_COLUMN_COUNT
+            } else {
+                LANDSCAPE_COLUMN_COUNT
+            }
+        ),
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(visibleFolderTiles, gridState) {
@@ -527,7 +532,7 @@ private fun GalleryPhotoTile(
                         shape = RoundedCornerShape(12.dp),
                         shadow = Shadow(
                             color = Color.Black.copy(alpha = 0.3f),
-                            blurRadius = 6.dp
+                            blurRadius = 6f
                         )
                     )
             )
@@ -551,7 +556,7 @@ private fun GalleryPhotoTile(
                         shape = CircleShape,
                         shadow = Shadow(
                             color = Color.Black.copy(alpha = 0.45f),
-                            blurRadius = 4.dp
+                            blurRadius = 4f
                         )
                     )
             )
