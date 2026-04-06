@@ -39,10 +39,12 @@ fun AlbumsContent(
         modifier = modifier.fillMaxSize(),
     ) {
         AlbumsGrid(
-            albums = content.albums,
-            onAlbumClicked = { handleUiEvent(AlbumsUiEvent.OpenAlbum(it)) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+    albums = albums,
+    onAlbumClicked = onAlbumClicked,
+    onMoveAlbum = { _, _ -> }, // Pass empty action
+    onSetAlbumCover = { _, _ -> }, // Pass empty action
+    modifier = modifier
+)
 
         MagicFab(
             label = stringResource(R.string.magic_fab_new_album_label),
