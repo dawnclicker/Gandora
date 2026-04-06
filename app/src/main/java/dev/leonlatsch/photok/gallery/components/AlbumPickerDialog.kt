@@ -110,18 +110,17 @@ private fun AlbumPickerContent(
         val addedMessage = stringResource(R.string.gallery_albums_photos_added, selectedItemIds.size)
 
         AlbumsGrid(
-    albums = albums,
-    onAlbumClicked = onAlbumClicked,
-    onMoveAlbum = { _, _ -> }, // Pass empty action
-    onSetAlbumCover = { _, _ -> }, // Pass empty action
-    modifier = Modifier.fillMaxWidth()
-)
-    }
-
-    CreateAlbumDialog(
-        show = showCreateDialog,
-        onDismissRequest = { showCreateDialog = false },
-    )
+            albums = uiState.albums, // Fixed: Use uiState.albums
+            onAlbumClicked = { albumId -> // Fixed: Implement the click logic
+                handleUiEvent(AlbumPickerUiEvent.AddPhotosToAlbum(albumId, selectedItemIds))
+                Dialogs.showShortToast(context, addedMessage)
+                onAlbumSelected()
+                onDismissRequest()
+            },
+            onMoveAlbum = { _, _ -> },
+            onSetAlbumCover = { _, _ -> },
+            modifier = Modifier.fillMaxWidth()
+        )
 }
 
 @Preview(showBackground = true)
