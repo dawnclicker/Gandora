@@ -65,7 +65,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -530,7 +530,7 @@ private fun GalleryPhotoTile(
                 modifier = Modifier
                     .dropShadow(
                         shape = RoundedCornerShape(12.dp),
-                        shadow = androidx.compose.ui.graphics.Shadow(
+                        shadow = androidx.compose.ui.graphics.shadow.Shadow(
                             color = Color.Black.copy(alpha = 0.3f),
                             blurRadius = 6f
                         )
@@ -554,7 +554,7 @@ private fun GalleryPhotoTile(
                 modifier = Modifier
                     .dropShadow(
                         shape = CircleShape,
-                        shadow = androidx.compose.ui.graphics.Shadow(
+                        shadow = androidx.compose.ui.graphics.shadow.Shadow(
                             color = Color.Black.copy(alpha = 0.45f),
                             blurRadius = 4f
                         )
