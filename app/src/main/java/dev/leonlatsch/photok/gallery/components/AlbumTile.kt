@@ -18,11 +18,8 @@ package dev.leonlatsch.photok.gallery.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import android.net.Uri
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,6 +60,7 @@ import dev.leonlatsch.photok.transcoding.compose.rememberEncryptedImagePainter
 fun AlbumTile(
     album: AlbumItem,
     onAlbumClicked: (String) -> Unit,
+    onLongClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     isDragging: Boolean = false,
 ) {
@@ -72,7 +70,10 @@ fun AlbumTile(
             .padding(12.dp)
             .graphicsLayer(scaleX = animatedScale, scaleY = animatedScale)
             .shadow(if (isDragging) 14.dp else 0.dp, RoundedCornerShape(16.dp))
-            .clickable { onAlbumClicked(album.id) }
+            .combinedClickable(
+                onClick = { onAlbumClicked(album.id) },
+                onLongClick = { onLongClick(album.id) }
+            )
     ) {
         Box {
             val contentModifier = Modifier
