@@ -63,6 +63,7 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var showCreateSubfolderDialog by remember { mutableStateOf(false) }
+    var showChangeThumbnailDialog by remember { mutableStateOf(false) }
 
     AppTheme {
         Scaffold(
@@ -136,6 +137,20 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
                             )
 
                             DropdownMenuItem(
+                                text = { Text(stringResource(R.string.album_change_thumbnail)) },
+                                onClick = {
+                                    showMore = false
+                                    showChangeThumbnailDialog = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_gallery_thumbnail),
+                                        contentDescription = stringResource(R.string.album_change_thumbnail)
+                                    )
+                                },
+                            )
+
+                            DropdownMenuItem(
                                 text = { Text(stringResource(R.string.common_delete)) },
                                 onClick = {
                                     showMore = false
@@ -176,6 +191,8 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
                     )
                 },
                 onLoadAlbumPhotos = { viewModel.loadAlbumPhotos(it) },
+                thumbnailSelectionAlbumId = if (showChangeThumbnailDialog) uiState.albumId else null,
+                onThumbnailSelectionDismiss = { showChangeThumbnailDialog = false },
                 modifier = Modifier
                     .padding(top = contentPadding.calculateTopPadding())
                     .nestedScroll(scrollBehavior.nestedScrollConnection)

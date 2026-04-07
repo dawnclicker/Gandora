@@ -75,7 +75,6 @@ fun AlbumsGrid(
     var draggingAlbumId by remember { mutableStateOf<String?>(null) }
     var dragStartIndex by remember { mutableStateOf<Int?>(null) }
     var dragDistance by remember { mutableStateOf(0f) }
-    var showContextMenuForAlbumId by remember { mutableStateOf<String?>(null) }
     var thumbnailSelectionAlbumId by remember { mutableStateOf<String?>(null) }
     var thumbnailSelectionPhotos by remember { mutableStateOf<List<PhotoTile>>(emptyList()) }
     var thumbnailSelectionLoading by remember { mutableStateOf(false) }
@@ -156,9 +155,7 @@ fun AlbumsGrid(
                         val albumId = draggingAlbumId
                         val startIndex = dragStartIndex
                         val endIndex = albumId?.let { id -> visibleAlbums.indexOfFirst { it.id == id } }
-                        if (albumId != null && dragDistance < dragThreshold) {
-                            showContextMenuForAlbumId = albumId
-                        } else if (
+                        if (
                             albumId != null &&
                             startIndex != null &&
                             endIndex != null &&
@@ -192,30 +189,6 @@ fun AlbumsGrid(
         }
     }
 
-    if (showContextMenuForAlbumId != null) {
-        AlertDialog(
-            onDismissRequest = { showContextMenuForAlbumId = null },
-            confirmButton = {
-                TextButton(onClick = {
-                    thumbnailSelectionAlbumId = showContextMenuForAlbumId
-                    showContextMenuForAlbumId = null
-                }) {
-                    Text(stringResource(R.string.album_change_thumbnail))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showContextMenuForAlbumId = null }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            },
-            title = {
-                Text(stringResource(R.string.album_thumbnail_menu_title))
-            },
-            text = {
-                Text(stringResource(R.string.album_thumbnail_menu_description))
-            }
-        )
-    }
 
     if (thumbnailSelectionAlbumId != null) {
         Dialog(onDismissRequest = { thumbnailSelectionAlbumId = null }) {

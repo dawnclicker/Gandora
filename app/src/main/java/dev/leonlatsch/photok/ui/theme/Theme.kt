@@ -71,7 +71,7 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
-/** Gandora: obsidian surfaces and dragon red accent (Color.kt). */
+/** Gandora: pure white/black theme with soft apple-flesh green accent (Color.kt). */
 @Composable
 fun AppTheme(
   useDarkTheme: Boolean = isSystemInDarkTheme(),

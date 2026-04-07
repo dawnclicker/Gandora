@@ -116,6 +116,8 @@ fun PhotoGallery(
     onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
     onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
+    thumbnailSelectionAlbumId: String? = null,
+    onThumbnailSelectionDismiss: () -> Unit = {},
 ) {
     val activity = LocalActivity.current
     var importMenuBottomSheetVisible by remember { mutableStateOf(false) }
@@ -137,6 +139,8 @@ fun PhotoGallery(
             onAlbumReordered = onAlbumReordered,
             onAlbumChangeThumbnail = onAlbumChangeThumbnail,
             onLoadAlbumPhotos = onLoadAlbumPhotos,
+            thumbnailSelectionAlbumId = thumbnailSelectionAlbumId,
+            onThumbnailSelectionDismiss = onThumbnailSelectionDismiss,
         )
 
         AnimatedVisibility(
@@ -274,6 +278,8 @@ private fun PhotoGrid(
     onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
     onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
+    thumbnailSelectionAlbumId: String? = null,
+    onThumbnailSelectionDismiss: () -> Unit = {},
 ) {
     val gridState: LazyGridState = rememberLazyGridState()
     val density = LocalDensity.current
@@ -286,14 +292,19 @@ private fun PhotoGrid(
     var draggingAlbumId by remember { mutableStateOf<String?>(null) }
     var dragStartIndex by remember { mutableStateOf<Int?>(null) }
     var dragDistance by remember { mutableStateOf(0f) }
-    var showContextMenuForAlbumId by remember { mutableStateOf<String?>(null) }
-    var thumbnailSelectionAlbumId by remember { mutableStateOf<String?>(null) }
+    var thumbnailSelectionAlbumState by remember { mutableStateOf<String?>(null) }
     var thumbnailSelectionPhotos by remember { mutableStateOf<List<PhotoTile>>(emptyList()) }
     var thumbnailSelectionLoading by remember { mutableStateOf(false) }
     var thumbnailSelectionError by remember { mutableStateOf(false) }
 
     LaunchedEffect(thumbnailSelectionAlbumId) {
-        val albumId = thumbnailSelectionAlbumId
+        if (thumbnailSelectionAlbumId != null) {
+            thumbnailSelectionAlbumState = thumbnailSelectionAlbumId
+        }
+    }
+
+    LaunchedEffect(thumbnailSelectionAlbumState) {
+        val albumId = thumbnailSelectionAlbumState
         if (albumId == null) {
             thumbnailSelectionPhotos = emptyList()
             thumbnailSelectionLoading = false
@@ -372,9 +383,7 @@ private fun PhotoGrid(
                         val albumId = draggingAlbumId
                         val startIndex = dragStartIndex
                         val endIndex = albumId?.let { id -> visibleFolderTiles.indexOfFirst { it.id == id } }
-                        if (albumId != null && dragDistance < dragThreshold) {
-                            showContextMenuForAlbumId = albumId
-                        } else if (
+                        if (
                             albumId != null &&
                             startIndex != null &&
                             endIndex != null &&
@@ -438,33 +447,12 @@ private fun PhotoGrid(
         }
     }
 
-    if (showContextMenuForAlbumId != null) {
-        AlertDialog(
-            onDismissRequest = { showContextMenuForAlbumId = null },
-            confirmButton = {
-                TextButton(onClick = {
-                    thumbnailSelectionAlbumId = showContextMenuForAlbumId
-                    showContextMenuForAlbumId = null
-                }) {
-                    Text(stringResource(R.string.album_change_thumbnail))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showContextMenuForAlbumId = null }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            },
-            title = {
-                Text(stringResource(R.string.album_thumbnail_menu_title))
-            },
-            text = {
-                Text(stringResource(R.string.album_thumbnail_menu_description))
-            }
-        )
-    }
 
-    if (thumbnailSelectionAlbumId != null) {
-        Dialog(onDismissRequest = { thumbnailSelectionAlbumId = null }) {
+    if (thumbnailSelectionAlbumState != null) {
+        Dialog(onDismissRequest = {
+            thumbnailSelectionAlbumState = null
+            onThumbnailSelectionDismiss()
+        }) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 tonalElevation = 8.dp,
@@ -505,11 +493,12 @@ private fun PhotoGrid(
                                     multiSelectionActive = false,
                                     selected = false,
                                     onClicked = {
-                                        val albumId = thumbnailSelectionAlbumId
+                                        val albumId = thumbnailSelectionAlbumState
                                         if (albumId != null) {
                                             onAlbumChangeThumbnail(albumId, albumThumbnailUri(photoTile))
                                         }
-                                        thumbnailSelectionAlbumId = null
+                                        thumbnailSelectionAlbumState = null
+                                        onThumbnailSelectionDismiss()
                                     },
                                     onLongPress = {},
                                     modifier = Modifier.animateItem(),
@@ -519,7 +508,10 @@ private fun PhotoGrid(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    TextButton(onClick = { thumbnailSelectionAlbumId = null }) {
+                    TextButton(onClick = {
+                        thumbnailSelectionAlbumState = null
+                        onThumbnailSelectionDismiss()
+                    }) {
                         Text(stringResource(R.string.common_cancel))
                     }
                 }
