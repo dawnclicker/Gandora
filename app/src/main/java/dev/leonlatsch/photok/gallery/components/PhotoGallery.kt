@@ -530,7 +530,7 @@ private fun GalleryPhotoTile(
                 modifier = Modifier
                     .dropShadow(
                         shape = RoundedCornerShape(12.dp),
-                        shadow = Shadow(
+                        shadow = androidx.compose.ui.graphics.Shadow(
                             color = Color.Black.copy(alpha = 0.3f),
                             blurRadius = 6f
                         )
@@ -554,7 +554,7 @@ private fun GalleryPhotoTile(
                 modifier = Modifier
                     .dropShadow(
                         shape = CircleShape,
-                        shadow = Shadow(
+                        shadow = androidx.compose.ui.graphics.Shadow(
                             color = Color.Black.copy(alpha = 0.45f),
                             blurRadius = 4f
                         )
