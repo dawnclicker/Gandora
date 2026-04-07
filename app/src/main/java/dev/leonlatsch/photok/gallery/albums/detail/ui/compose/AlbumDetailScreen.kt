@@ -175,6 +175,7 @@ fun AlbumDetailScreen(viewModel: AlbumDetailViewModel, navController: NavControl
                         AlbumsFragmentDirections.actionGlobalAlbumDetailFragment(albumUuid = uuid),
                     )
                 },
+                onLoadAlbumPhotos = { viewModel.loadAlbumPhotos(it) },
                 modifier = Modifier
                     .padding(top = contentPadding.calculateTopPadding())
                     .nestedScroll(scrollBehavior.nestedScrollConnection)

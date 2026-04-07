@@ -82,6 +82,10 @@
     <string name="album_thumbnail_menu_title">Folder actions</string>
     <string name="album_thumbnail_menu_description">Long press detected. Choose an action for this folder.</string>
     <string name="album_change_thumbnail">Change thumbnail</string>
+    <string name="album_thumbnail_picker_title">Select album thumbnail</string>
+    <string name="album_thumbnail_picker_description">Choose a photo from this album to use as the folder thumbnail.</string>
+    <string name="album_thumbnail_picker_empty">No photos available in this album.</string>
+    <string name="album_thumbnail_picker_error">Could not load album photos.</string>
 
     <!-- IMPORT MENU -->
     <string name="import_menu_fab_label">Import</string>

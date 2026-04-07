@@ -53,6 +53,24 @@ internal fun createScopedFavoritesPhotosQuery(subtreeAlbumUuids: List<String>, s
     return SimpleSQLiteQuery(sql, subtreeAlbumUuids.toTypedArray())
 }
 
+internal fun createScopedPhotosQuery(subtreeAlbumUuids: List<String>, sort: Sort): SupportSQLiteQuery {
+    require(subtreeAlbumUuids.isNotEmpty())
+    val placeholders = subtreeAlbumUuids.joinToString(",") { "?" }
+    val orderExpr = when (sort.field) {
+        Sort.Field.LinkedAt -> "MAX(ref.${AlbumPhotoCrossRefTable.COL_LINKED_AT})"
+        else -> "p.${sort.field.columnName}"
+    }
+    @Language("roomsql")
+    val sql = """
+        SELECT p.* FROM ${Photo.TABLE_NAME} p
+        INNER JOIN ${AlbumPhotoCrossRefTable.TABLE_NAME} ref ON p.photo_uuid = ref.photo_uuid
+        WHERE ref.album_uuid IN ($placeholders)
+        GROUP BY p.photo_uuid
+        ORDER BY $orderExpr ${sort.order.sql}
+    """.trimIndent()
+    return SimpleSQLiteQuery(sql, subtreeAlbumUuids.toTypedArray())
+}
+
 @Language("roomsql")
 const val SELECT_ALL_ALBUMS_QUERY = """
     SELECT * FROM album
@@ -181,6 +199,10 @@ abstract class AlbumDao {
         val query = when {
             favoritesOnly && subtreeAlbumUuids.isNotEmpty() ->
                 createScopedFavoritesPhotosQuery(subtreeAlbumUuids, sort)
+            subtreeAlbumUuids.isNotEmpty() ->
+                createScopedPhotosQuery(subtreeAlbumUuids, sort)
+            favoritesOnly ->
+                createScopedFavoritesPhotosQuery(listOf(uuid), sort)
             else ->
                 createSortedPhotosQuery(uuid, sort)
         }
@@ -206,6 +228,10 @@ abstract class AlbumDao {
         val query = when {
             favoritesOnly && subtreeAlbumUuids.isNotEmpty() ->
                 createScopedFavoritesPhotosQuery(subtreeAlbumUuids, sort)
+            subtreeAlbumUuids.isNotEmpty() ->
+                createScopedPhotosQuery(subtreeAlbumUuids, sort)
+            favoritesOnly ->
+                createScopedFavoritesPhotosQuery(listOf(uuid), sort)
             else ->
                 createSortedPhotosQuery(uuid, sort)
         }

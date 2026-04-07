@@ -52,9 +52,11 @@ class AlbumRepositoryImpl @Inject constructor(
                 albums
                     .filter { it.parentAlbumUuid == null }
                     .map { album ->
+                        val subtree = buildSubtreeUuids(album.uuid, albums)
                         val photos = albumDao.getPhotosForAlbum(
                             album.uuid,
                             sorts[album.uuid] ?: SortConfig.Album.default,
+                            subtreeAlbumUuids = subtree,
                         )
                         album.toDomain().copy(files = photos)
                     }
@@ -94,13 +96,17 @@ class AlbumRepositoryImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeChildAlbumsWithPhotos(parentUuid: String): Flow<List<Album>> {
         return sortRepository.observeSortsForAlbums().flatMapLatest { sorts ->
-            albumDao.observeChildAlbums(parentUuid).map { tables ->
-                tables.map { table ->
-                    val photos = albumDao.getPhotosForAlbum(
-                        table.uuid,
-                        sorts[table.uuid] ?: SortConfig.Album.default,
-                    )
-                    table.toDomain().copy(files = photos)
+            albumDao.observeChildAlbums(parentUuid).flatMapLatest { tables ->
+                albumDao.observeAllAlbums().map { allAlbums ->
+                    tables.map { table ->
+                        val subtree = buildSubtreeUuids(table.uuid, allAlbums)
+                        val photos = albumDao.getPhotosForAlbum(
+                            table.uuid,
+                            sorts[table.uuid] ?: SortConfig.Album.default,
+                            subtreeAlbumUuids = subtree,
+                        )
+                        table.toDomain().copy(files = photos)
+                    }
                 }
             }
         }

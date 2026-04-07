@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import dev.leonlatsch.photok.model.database.entity.internalThumbnailFileName
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,12 +85,30 @@ fun AlbumTile(
                 .clip(RoundedCornerShape(12.dp))
 
             if (album.customThumbnailUri != null && !LocalInspectionMode.current) {
-                Image(
-                    painter = rememberAsyncImagePainter(Uri.parse(album.customThumbnailUri)),
-                    contentDescription = null,
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop,
-                )
+                val thumbnailData = parseAlbumThumbnailUri(album.customThumbnailUri)
+                if (thumbnailData != null) {
+                    val (photoUuid, mimeType) = thumbnailData
+                    val requestData = remember(album.customThumbnailUri) {
+                        EncryptedImageRequestData(
+                            internalFileName = internalThumbnailFileName(photoUuid),
+                            mimeType = mimeType.ifEmpty { "image/jpeg" }
+                        )
+                    }
+
+                    Image(
+                        painter = rememberEncryptedImagePainter(requestData),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Image(
+                        painter = rememberAsyncImagePainter(Uri.parse(album.customThumbnailUri)),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop,
+                    )
+                }
             } else if (album.albumCover == null || LocalInspectionMode.current) {
                 Box(
                     modifier = imageModifier.background(MaterialTheme.colorScheme.outline)

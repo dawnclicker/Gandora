@@ -224,6 +224,16 @@ class AlbumDetailViewModel @AssistedInject constructor(
         navEventsChannel.trySend(navEvent)
     }
 
+    suspend fun loadAlbumPhotos(albumUuid: String): List<PhotoTile> =
+        albumsRepository.getPhotosForAlbum(albumUuid, false).map { photo ->
+            PhotoTile(
+                fileName = photo.fileName,
+                type = photo.type,
+                uuid = photo.uuid,
+                isFavorite = photo.isFavorite,
+            )
+        }
+
     private fun renameAlbum(newName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             albumsRepository.rename(

@@ -44,6 +44,7 @@ fun AlbumDetailContent(
     uiState: AlbumDetailUiState,
     handleUiEvent: (AlbumDetailUiEvent) -> Unit,
     onOpenChildAlbum: (String) -> Unit,
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
     modifier: Modifier = Modifier,
 ) {
     val multiSelectionState =
@@ -84,6 +85,7 @@ fun AlbumDetailContent(
         onAlbumChangeThumbnail = { uuid, uri ->
             handleUiEvent(AlbumDetailUiEvent.ChangeThumbnail(uuid, uri))
         },
+        onLoadAlbumPhotos = onLoadAlbumPhotos,
         additionalMultiSelectionActions = {
             HorizontalDivider()
             DropdownMenuItem(

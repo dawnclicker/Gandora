@@ -123,6 +123,7 @@ fun GalleryScreen(
                         uiState = contentUiState,
                         handleUiEvent = { viewModel.handleUiEvent(it) },
                         multiSelectionState = multiSelectionState,
+                        onLoadAlbumPhotos = { viewModel.loadAlbumPhotos(it) },
                         modifier = modifier,
                     )
 

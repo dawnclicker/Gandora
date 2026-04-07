@@ -43,6 +43,7 @@ fun GalleryContent(
     uiState: GalleryUiState.Content,
     handleUiEvent: (GalleryUiEvent) -> Unit,
     multiSelectionState: MultiSelectionState,
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
     modifier: Modifier = Modifier,
 ) {
     PhotoGallery(
@@ -79,6 +80,7 @@ fun GalleryContent(
         onAlbumChangeThumbnail = { uuid, uri ->
             handleUiEvent(GalleryUiEvent.ChangeAlbumThumbnail(uuid, uri))
         },
+        onLoadAlbumPhotos = onLoadAlbumPhotos,
         additionalMultiSelectionActions = {
             HorizontalDivider()
             DropdownMenuItem(

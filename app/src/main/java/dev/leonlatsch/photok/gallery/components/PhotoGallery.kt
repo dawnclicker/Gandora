@@ -16,7 +16,6 @@
 
 package dev.leonlatsch.photok.gallery.components
 
-import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.LocalActivity
@@ -34,10 +33,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -48,12 +50,15 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -110,6 +115,7 @@ fun PhotoGallery(
     onOpenFolder: (String) -> Unit = {},
     onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
 ) {
     val activity = LocalActivity.current
     var importMenuBottomSheetVisible by remember { mutableStateOf(false) }
@@ -130,6 +136,7 @@ fun PhotoGallery(
             openPhoto = onOpenPhoto,
             onAlbumReordered = onAlbumReordered,
             onAlbumChangeThumbnail = onAlbumChangeThumbnail,
+            onLoadAlbumPhotos = onLoadAlbumPhotos,
         )
 
         AnimatedVisibility(
@@ -266,10 +273,10 @@ private fun PhotoGrid(
     modifier: Modifier = Modifier,
     onAlbumReordered: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
 ) {
     val gridState: LazyGridState = rememberLazyGridState()
     val density = LocalDensity.current
-    val activity = LocalActivity.current
 
     var visibleFolderTiles by remember { mutableStateOf(folderTiles) }
     LaunchedEffect(folderTiles) {
@@ -280,20 +287,30 @@ private fun PhotoGrid(
     var dragStartIndex by remember { mutableStateOf<Int?>(null) }
     var dragDistance by remember { mutableStateOf(0f) }
     var showContextMenuForAlbumId by remember { mutableStateOf<String?>(null) }
-    var pendingThumbnailAlbumId by remember { mutableStateOf<String?>(null) }
+    var thumbnailSelectionAlbumId by remember { mutableStateOf<String?>(null) }
+    var thumbnailSelectionPhotos by remember { mutableStateOf<List<PhotoTile>>(emptyList()) }
+    var thumbnailSelectionLoading by remember { mutableStateOf(false) }
+    var thumbnailSelectionError by remember { mutableStateOf(false) }
 
-    val pickThumbnailLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        val albumId = pendingThumbnailAlbumId
-        pendingThumbnailAlbumId = null
-        if (uri == null || albumId == null) return@rememberLauncherForActivityResult
+    LaunchedEffect(thumbnailSelectionAlbumId) {
+        val albumId = thumbnailSelectionAlbumId
+        if (albumId == null) {
+            thumbnailSelectionPhotos = emptyList()
+            thumbnailSelectionLoading = false
+            thumbnailSelectionError = false
+            return@LaunchedEffect
+        }
 
-        activity?.contentResolver?.takePersistableUriPermission(
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
-        onAlbumChangeThumbnail(albumId, uri)
+        thumbnailSelectionLoading = true
+        thumbnailSelectionError = false
+        thumbnailSelectionPhotos = try {
+            onLoadAlbumPhotos(albumId)
+        } catch (e: Exception) {
+            thumbnailSelectionError = true
+            emptyList()
+        } finally {
+            thumbnailSelectionLoading = false
+        }
     }
 
     val dragThreshold = remember { with(density) { 8.dp.toPx() } }
@@ -426,9 +443,8 @@ private fun PhotoGrid(
             onDismissRequest = { showContextMenuForAlbumId = null },
             confirmButton = {
                 TextButton(onClick = {
-                    pendingThumbnailAlbumId = showContextMenuForAlbumId
+                    thumbnailSelectionAlbumId = showContextMenuForAlbumId
                     showContextMenuForAlbumId = null
-                    pickThumbnailLauncher.launch(arrayOf("image/*"))
                 }) {
                     Text(stringResource(R.string.album_change_thumbnail))
                 }
@@ -446,6 +462,89 @@ private fun PhotoGrid(
             }
         )
     }
+
+    if (thumbnailSelectionAlbumId != null) {
+        Dialog(onDismissRequest = { thumbnailSelectionAlbumId = null }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.album_thumbnail_picker_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (thumbnailSelectionLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (thumbnailSelectionError) {
+                        Text(stringResource(R.string.album_thumbnail_picker_error))
+                    } else if (thumbnailSelectionPhotos.isEmpty()) {
+                        Text(stringResource(R.string.album_thumbnail_picker_empty))
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(360.dp),
+                        ) {
+                            items(thumbnailSelectionPhotos, key = { it.uuid }) { photoTile ->
+                                GalleryPhotoTile(
+                                    photoTile = photoTile,
+                                    multiSelectionActive = false,
+                                    selected = false,
+                                    onClicked = {
+                                        val albumId = thumbnailSelectionAlbumId
+                                        if (albumId != null) {
+                                            onAlbumChangeThumbnail(albumId, albumThumbnailUri(photoTile))
+                                        }
+                                        thumbnailSelectionAlbumId = null
+                                    },
+                                    onLongPress = {},
+                                    modifier = Modifier.animateItem(),
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    TextButton(onClick = { thumbnailSelectionAlbumId = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                }
+            }
+        }
+    }
+}
+
+private const val InternalAlbumThumbnailUriScheme = "photok-internal-thumbnail"
+private const val InternalAlbumThumbnailMimeTypeQuery = "mimeType"
+
+fun albumThumbnailUri(photoTile: PhotoTile): Uri =
+    Uri.Builder()
+        .scheme(InternalAlbumThumbnailUriScheme)
+        .authority(photoTile.uuid)
+        .appendQueryParameter(InternalAlbumThumbnailMimeTypeQuery, photoTile.type.mimeType)
+        .build()
+
+fun parseAlbumThumbnailUri(uriString: String): Pair<String, String>? {
+    val uri = Uri.parse(uriString)
+    if (uri.scheme != InternalAlbumThumbnailUriScheme) return null
+    val uuid = uri.host.orEmpty().ifEmpty { uri.pathSegments.firstOrNull().orEmpty() }
+    if (uuid.isEmpty()) return null
+    val mimeType = uri.getQueryParameter(InternalAlbumThumbnailMimeTypeQuery).orEmpty()
+    return uuid to mimeType
 }
 
 private val VideoIconSize = 20.dp

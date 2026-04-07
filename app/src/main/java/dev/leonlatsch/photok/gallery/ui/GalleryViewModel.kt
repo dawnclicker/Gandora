@@ -30,8 +30,10 @@ import dev.leonlatsch.photok.sort.domain.SortConfig
 import dev.leonlatsch.photok.gallery.albums.domain.AlbumRepository
 import dev.leonlatsch.photok.gallery.albums.toUi
 import dev.leonlatsch.photok.sort.domain.SortRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -165,6 +167,18 @@ class GalleryViewModel @Inject constructor(
             )
         )
     }
+
+    suspend fun loadAlbumPhotos(albumUuid: String): List<PhotoTile> =
+        withContext(Dispatchers.IO) {
+            albumRepository.getPhotosForAlbum(albumUuid, false).map { photo ->
+                PhotoTile(
+                    fileName = photo.fileName,
+                    type = photo.type,
+                    uuid = photo.uuid,
+                    isFavorite = photo.isFavorite,
+                )
+            }
+        }
 
     private fun navigateToPhoto(item: PhotoTile) {
         photoActionsChannel.trySend(
