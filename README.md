@@ -2,7 +2,7 @@ Private photo vault to hide photos and videos with strong on-device encryption.
 
 ## About
 
-Gandora is forked from Photok with a couple quality of life improvements.
+Gandora is forked from Photok [https://github.com/leonlatsch/Photok/releases/tag/2.8.0] with a couple quality of life improvements.
 All files are encrypted locally and only decrypted in memory while you use the app. No cloud upload is required.
 
 Photok is open source, ad-free, and built with a privacy-first philosophy. It is developed by Leon and public volunteers, this fork is maintained by me dawnclicker or whatever name i have on here.
