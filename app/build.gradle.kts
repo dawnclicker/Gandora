@@ -20,7 +20,7 @@ android {
     compileSdk = VersionCodes.BAKLAVA
 
     defaultConfig {
-        applicationId = "dev.leonlatsch.photok"
+        applicationId = "com.gandora.app"
         minSdk = VersionCodes.P
         targetSdk = VersionCodes.BAKLAVA
 
