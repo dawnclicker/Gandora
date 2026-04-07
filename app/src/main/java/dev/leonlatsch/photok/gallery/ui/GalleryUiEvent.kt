@@ -30,4 +30,7 @@ sealed interface GalleryUiEvent {
     data class OnImportChoice(val choice: ImportChoice) : GalleryUiEvent
     data class SortChanged(val sort: Sort) : GalleryUiEvent
     data object ToggleFavoritesFilter : GalleryUiEvent
+    data class ReorderAlbums(val fromIndex: Int, val toIndex: Int) : GalleryUiEvent
+    data class ChangeAlbumThumbnail(val albumUUID: String, val thumbnailUri: Uri) : GalleryUiEvent
+    data class OpenAlbum(val albumId: String) : GalleryUiEvent
 }

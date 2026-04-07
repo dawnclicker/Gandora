@@ -27,6 +27,8 @@ import dev.leonlatsch.photok.gallery.ui.navigation.PhotoAction
 import dev.leonlatsch.photok.model.repositories.ImportSource
 import dev.leonlatsch.photok.model.repositories.PhotoRepository
 import dev.leonlatsch.photok.sort.domain.SortConfig
+import dev.leonlatsch.photok.gallery.albums.domain.AlbumRepository
+import dev.leonlatsch.photok.gallery.albums.toUi
 import dev.leonlatsch.photok.sort.domain.SortRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -36,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -47,6 +50,7 @@ class GalleryViewModel @Inject constructor(
     photoRepository: PhotoRepository,
     private val galleryUiStateFactory: GalleryUiStateFactory,
     private val sortRepository: SortRepository,
+    private val albumRepository: AlbumRepository,
 ) : ViewModel() {
 
     private val sortFlow = sortRepository.observeSortFor(albumUuid = null, default = SortConfig.Gallery.default)
@@ -61,6 +65,10 @@ class GalleryViewModel @Inject constructor(
         photoRepository.observeAll(sort, fav)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
+    private val albumsFlow = albumRepository.observeAllAlbumsWithPhotos()
+        .map { albums -> albums.map { it.toUi() } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
     private val showAlbumSelectionDialog = MutableStateFlow(false)
 
     val uiState: StateFlow<GalleryUiState> = combine(
@@ -68,13 +76,14 @@ class GalleryViewModel @Inject constructor(
         showAlbumSelectionDialog,
         sortFlow,
         favoritesOnly,
-    ) { photos, showAlbumSelection, sort, fav ->
+        albumsFlow,
+    ) { photos, showAlbumSelection, sort, fav, albums ->
         galleryUiStateFactory.create(
             photos,
             showAlbumSelection,
             sort,
             fav,
-            folderTiles = emptyList(),
+            folderTiles = albums,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), GalleryUiState.Empty)
 
@@ -97,6 +106,32 @@ class GalleryViewModel @Inject constructor(
             }
             GalleryUiEvent.ToggleFavoritesFilter -> {
                 favoritesOnly.update { !it }
+            }
+            is GalleryUiEvent.ReorderAlbums -> {
+                viewModelScope.launch {
+                    val currentOrder = albumsFlow.value.map { it.id }.toMutableList()
+                    if (event.fromIndex in currentOrder.indices && event.toIndex in currentOrder.indices) {
+                        val moved = currentOrder.removeAt(event.fromIndex)
+                        currentOrder.add(event.toIndex, moved)
+                        val updatedPriorities = currentOrder
+                            .mapIndexed { index, albumId -> albumId to index }
+                            .toMap()
+                        albumRepository.updateAlbumPriorities(updatedPriorities)
+                    }
+                }
+            }
+            is GalleryUiEvent.ChangeAlbumThumbnail -> {
+                viewModelScope.launch {
+                    albumRepository.updateAlbumThumbnail(
+                        albumUuid = event.albumUUID,
+                        customThumbnailUri = event.thumbnailUri.toString(),
+                    )
+                }
+            }
+            is GalleryUiEvent.OpenAlbum -> {
+                viewModelScope.launch {
+                    eventsChannel.send(GalleryNavigationEvent.OpenAlbum(event.albumId))
+                }
             }
         }
     }

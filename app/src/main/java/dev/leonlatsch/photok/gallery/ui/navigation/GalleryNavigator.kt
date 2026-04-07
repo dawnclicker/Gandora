@@ -20,7 +20,9 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.findNavController
 import dev.leonlatsch.photok.backup.ui.RestoreBackupDialogFragment
+import dev.leonlatsch.photok.gallery.albums.ui.AlbumsFragmentDirections
 import dev.leonlatsch.photok.gallery.ui.importing.ImportBottomSheetDialogFragment
 import dev.leonlatsch.photok.model.repositories.ImportSource
 import dev.leonlatsch.photok.other.extensions.show
@@ -36,6 +38,7 @@ class GalleryNavigator @Inject constructor() {
             is GalleryNavigationEvent.ShowToast -> showToast(event, fragment)
             is GalleryNavigationEvent.StartImport -> startImport(event.fileUris, fragment.childFragmentManager, event.importSource)
             is GalleryNavigationEvent.StartRestoreBackup -> startRestoreBackup(event.backupUri, fragment.childFragmentManager)
+            is GalleryNavigationEvent.OpenAlbum -> openAlbum(event.albumId, fragment)
         }
     }
 
@@ -57,5 +60,10 @@ class GalleryNavigator @Inject constructor() {
         fragment.context?.let { context ->
             Toast.makeText(context, event.text, Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun openAlbum(albumId: String, fragment: Fragment) {
+        val action = AlbumsFragmentDirections.actionGlobalAlbumDetailFragment(albumUuid = albumId)
+        fragment.findNavController().navigate(action)
     }
 }

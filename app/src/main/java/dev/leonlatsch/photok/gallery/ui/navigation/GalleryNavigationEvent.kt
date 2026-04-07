@@ -23,4 +23,5 @@ sealed interface GalleryNavigationEvent {
     data class ShowToast(val text: String) : GalleryNavigationEvent
     data class StartImport(val fileUris: List<Uri>, val importSource: ImportSource) : GalleryNavigationEvent
     data class StartRestoreBackup(val backupUri: Uri) : GalleryNavigationEvent
+    data class OpenAlbum(val albumId: String) : GalleryNavigationEvent
 }

@@ -70,6 +70,15 @@ fun GalleryContent(
         onImportChoice = {
             handleUiEvent(GalleryUiEvent.OnImportChoice(it))
         },
+        onOpenFolder = { albumId ->
+            handleUiEvent(GalleryUiEvent.OpenAlbum(albumId))
+        },
+        onAlbumReordered = { from, to ->
+            handleUiEvent(GalleryUiEvent.ReorderAlbums(from, to))
+        },
+        onAlbumChangeThumbnail = { uuid, uri ->
+            handleUiEvent(GalleryUiEvent.ChangeAlbumThumbnail(uuid, uri))
+        },
         additionalMultiSelectionActions = {
             HorizontalDivider()
             DropdownMenuItem(
