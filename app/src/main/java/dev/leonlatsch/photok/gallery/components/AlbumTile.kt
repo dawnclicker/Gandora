@@ -72,7 +72,7 @@ fun AlbumTile(
             .shadow(if (isDragging) 14.dp else 0.dp, RoundedCornerShape(16.dp))
             .combinedClickable(
                 onClick = { onAlbumClicked(album.id) },
-                onLongClick = { onLongClick(album.id) }
+                onLongClick = null  // Let the grid's pointerInput handle long-press
             )
     ) {
         Box {

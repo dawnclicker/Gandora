@@ -308,7 +308,6 @@ private fun PhotoGrid(
             }
         ),
         modifier = modifier
-            .fillMaxWidth()
             .pointerInput(visibleFolderTiles, gridState) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
@@ -329,6 +328,7 @@ private fun PhotoGrid(
                     },
                     onDrag = { change, dragAmount ->
                         if (draggingAlbumId == null) return@detectDragGesturesAfterLongPress
+                        // Consume immediately to block parent scroll
                         change.consume()
                         dragDistance += abs(dragAmount.y) + abs(dragAmount.x)
 

@@ -61,7 +61,6 @@ fun AlbumsGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier
-            .fillMaxWidth()
             .pointerInput(visibleAlbums, gridState) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
@@ -82,6 +81,7 @@ fun AlbumsGrid(
                     },
                     onDrag = { change, dragAmount ->
                         if (draggingAlbumId == null) return@detectDragGesturesAfterLongPress
+                        // Consume immediately to block parent scroll
                         change.consume()
                         dragDistance += abs(dragAmount.y) + abs(dragAmount.x)
 
@@ -129,7 +129,8 @@ fun AlbumsGrid(
                         dragDistance = 0f
                     }
                 )
-            },
+            }
+            .fillMaxWidth(),
         state = gridState
     ) {
         items(visibleAlbums, key = { "album_${it.id}" }) { album ->
