@@ -567,7 +567,7 @@ fun Modifier.multiSelectionItem(selected: Boolean): Modifier {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun GalleryPhotoTile(
+fun GalleryPhotoTile(
     modifier: Modifier = Modifier,
     photoTile: PhotoTile,
     multiSelectionActive: Boolean,
