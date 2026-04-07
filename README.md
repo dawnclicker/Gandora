@@ -1,119 +1,12 @@
-![Photok](fastlane/metadata/android/en-US/images/featureGraphic.jpg)
-
-[![GitHub release](https://img.shields.io/github/v/release/leonlatsch/Photok.svg?logo=github&label=GitHub)](https://github.com/leonlatsch/Photok/releases/latest)
-[![Google Play](https://img.shields.io/endpoint?color=green&logo=google-play&logoColor=white&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Ddev.leonlatsch.photok%26l%3DGPlay%26m%3D%24version)](https://play.google.com/store/apps/details?id=dev.leonlatsch.photok)
-[![F-Droid](https://img.shields.io/f-droid/v/dev.leonlatsch.photok.svg?logo=f-droid&label=F-Droid)](https://f-droid.org/packages/dev.leonlatsch.photok/)
-[![IzzyOnDroid](https://img.shields.io/f-droid/v/dev.leonlatsch.photok.svg?logo=f-droid&label=IzzyOnDroid&baseUrl=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid)](https://apt.izzysoft.de/fdroid/index/apk/dev.leonlatsch.photok)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/leonlatsch/Photok/android.yml?branch=develop)
-[![GitHub](https://img.shields.io/github/license/leonlatsch/Photok)](./LICENSE)
-![Maintenance](https://img.shields.io/maintenance/yes/2026)
-![Twitch Status](https://img.shields.io/twitch/status/leonlatsch?style=flat&logo=twitch)
-![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/photok?style=flat)
-
 Private photo vault to hide photos and videos with strong on-device encryption.
 
 ## About
 
-Photok is a secure private photo vault for Android that helps you hide photos and videos using strong AES-256 encryption.
-It protects sensitive media in an encrypted gallery and keeps your private memories safe on your own device.
-
+Gandora is forked from Photok [https://github.com/leonlatsch/Photok/releases/tag/2.8.0] with a couple quality of life improvements.
 All files are encrypted locally and only decrypted in memory while you use the app. No cloud upload is required.
 
-Photok is open source, ad-free, and built with a privacy-first philosophy. It is developed by me (Leon) and public volunteers.
+Photok is open source, ad-free, and built with a privacy-first philosophy. It is developed by Leon and public volunteers, this fork is maintained by me dawnclicker or whatever name i have on here.
 
-<p align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="24%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="24%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="24%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="24%" />
-</p>
-
-## Download
-
-Photok is available on Google Play and F-Droid. Aswell as some alternatives.
-
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
-      alt="Download from Google Play"
-      height="80">](https://play.google.com/store/apps/details?id=dev.leonlatsch.photok)
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-      alt="Get it on F-Droid"
-      height="80">](https://f-droid.org/packages/dev.leonlatsch.photok/)
-[<img src="https://raw.githubusercontent.com/andOTP/andOTP/master/assets/badges/get-it-on-github.png"
-      alt="Get it on GitHub"
-      height="80">](https://github.com/leonlatsch/Photok/releases/latest)
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png"
-      alt="Get it on IzzyOnDroid"
-      height="80">](https://apt.izzysoft.de/fdroid/index/apk/dev.leonlatsch.photok)
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D1UPJIV)
-
-## Features
-
-- Import photos and videos from your gallery
-- Organize private media into albums
-- Export files anytime
-- Create and restore encrypted backups
-- Unlock your vault with fingerprint authentication
-- Share media directly to the vault
-- Option to hide the app icon
-- Automatically delete original files after import
-
-## Privacy-Focused Design
-
-Photok is designed for people who want real control over their private photos and videos.
-Encryption happens on your device, and imported files are only decrypted in memory while the app is in use.
-
-Photok can use minimal privacy-friendly analytics to improve stability and user experience.
-These analytics are never used for advertising or cross-app tracking.
-
-## Translations
-<!-- BEGIN-TRANSLATIONS -->
-![English](https://img.shields.io/badge/English-100%25-brightgreen)
-![Arabic](https://img.shields.io/badge/Arabic-62%25-orange)
-![Chinese (China)](https://img.shields.io/badge/Chinese%20(China)-98%25-yellow)
-![Dutch](https://img.shields.io/badge/Dutch-62%25-orange)
-![French](https://img.shields.io/badge/French-93%25-yellow)
-![German](https://img.shields.io/badge/German-98%25-yellow)
-![Indonesian](https://img.shields.io/badge/Indonesian-94%25-yellow)
-![Italian](https://img.shields.io/badge/Italian-87%25-yellow)
-![Portuguese (Brazil)](https://img.shields.io/badge/Portuguese%20(Brazil)-60%25-orange)
-![Russian](https://img.shields.io/badge/Russian-71%25-orange)
-![Spanish](https://img.shields.io/badge/Spanish-74%25-orange)
-![Turkish](https://img.shields.io/badge/Turkish-98%25-yellow)
-![Urdu (India)](https://img.shields.io/badge/Urdu%20(India)-91%25-yellow)
-<!-- END-TRANSLATIONS -->
-
-> You want to help translating Photok? See [CONTRIBUTING](CONTRIBUTING.md#Translations)
-
-## Telemetry
-
-Photok can optionally send anonymous usage statistics to help improve the app.
-
-### Google Play
-
-Telemetry is *enabled* by default. Users can disable it at any time in the settings.
-
-### FOSS (F-Droid, GitHub, etc.)
-
-Telemetry is *disabled* by default. Users can enable it at any time in the settings.  
-In addition, Photok will prompt the user to enable telemetry after the first unlock (not during initial setup).
-
-No data is transmitted unless the user has explicitly opted in. This behavior is required to avoid the *Tracking* anti-feature flag in F-Droid and aligns with user expectations for apps installed from F-Droid.
-
-## Community
-
-### Contributors
-
-<a href="https://github.com/leonlatsch/Photok/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=leonlatsch/Photok"  alt="Photok Contributors"/>
-</a>
-
-## Related Tools
-
-[![RecWare-Photok](https://github-readme-stats.vercel.app/api/pin/?username=Blk-S-Bellamy&repo=RecWare-Photok&show_owner=true&theme=transparent)](https://github.com/Blk-S-Bellamy/RecWare-Photok)
-
-LICENSE
-=======
 
     Copyright 2020-2026 Leon Latsch
 
@@ -128,7 +21,3 @@ LICENSE
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-**Legal Notice**
-
-Google Play and the Google Play logo are trademarks of Google LLC
