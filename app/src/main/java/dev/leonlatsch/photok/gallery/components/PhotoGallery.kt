@@ -1,17 +1,17 @@
 /*
- *   Copyright 2020–2026 Leon Latsch
+ * Copyright 2020–2026 Leon Latsch
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package dev.leonlatsch.photok.gallery.components
@@ -63,9 +63,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -117,7 +115,6 @@ fun PhotoGallery(
     var importMenuBottomSheetVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // Hide magic fab menu when multi selection active
     LaunchedEffect(multiSelectionState.isActive.value) {
         if (multiSelectionState.isActive.value) {
             importMenuBottomSheetVisible = false
@@ -526,14 +523,7 @@ private fun GalleryPhotoTile(
             Icon(
                 painter = painterResource(R.drawable.ic_videocam),
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier
-                    .dropShadow(
-                        shape = RoundedCornerShape(12.dp),
-                        shadow = Shadow(
-                            color = Color.Black.copy(alpha = 0.3f),
-                            blurRadius = 6f)
-                    )
+                tint = Color.White
             )
         }
 
@@ -549,15 +539,8 @@ private fun GalleryPhotoTile(
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .dropShadow(
-                        shape = CircleShape,
-                        shadow = Shadow(    
-                            color = Color.Black.copy(alpha = 0.45f),
-                            blurRadius = 4f)
-                        )
-                    )
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
 
         AnimatedVisibility(
@@ -574,67 +557,6 @@ private fun GalleryPhotoTile(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.background)
                     .align(Alignment.TopStart)
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PhotoGridPreview() {
-    AppTheme {
-        Scaffold {
-            PhotoGallery(
-                modifier = Modifier.padding(it),
-                photos = listOf(
-                    PhotoTile("", PhotoType.JPEG, "1"),
-                    PhotoTile("", PhotoType.MP4, "2"),
-                    PhotoTile("", PhotoType.MP4, "3"),
-                    PhotoTile("", PhotoType.JPEG, "4"),
-                    PhotoTile("", PhotoType.JPEG, "5"),
-                    PhotoTile("", PhotoType.MP4, "6"),
-                ),
-                albumName = null,
-                multiSelectionState = MultiSelectionState(
-                    allItems = listOf("1", "2", "3"),
-                ),
-                onOpenPhoto = {},
-                onDelete = {},
-                onExport = {},
-                onImportChoice = {},
-                additionalMultiSelectionActions = {},
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PhotoGridPreviewWithSelection() {
-    AppTheme {
-        Scaffold {
-            PhotoGallery(
-                modifier = Modifier.padding(it),
-                photos = listOf(
-                    PhotoTile("", PhotoType.JPEG, "1"),
-                    PhotoTile("", PhotoType.MP4, "2"),
-                    PhotoTile("", PhotoType.MP4, "3"),
-                    PhotoTile("", PhotoType.JPEG, "4"),
-                    PhotoTile("", PhotoType.JPEG, "5"),
-                    PhotoTile("", PhotoType.MP4, "6"),
-                ),
-                albumName = null,
-                multiSelectionState = MultiSelectionState(
-                    allItems = listOf("1", "2", "3"),
-                ).apply {
-                    selectItem("2")
-                    selectItem("3")
-                },
-                onOpenPhoto = {},
-                onDelete = {},
-                onExport = {},
-                onImportChoice = {},
-                additionalMultiSelectionActions = {},
             )
         }
     }
