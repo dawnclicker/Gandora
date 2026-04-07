@@ -16,8 +16,11 @@
 
 package dev.leonlatsch.photok.gallery.albums.ui
 
+import android.net.Uri
+
 sealed interface AlbumsUiEvent {
     data object ShowCreateDialog : AlbumsUiEvent
     data object HideCreateDialog : AlbumsUiEvent
     data class OpenAlbum(val uuid: String) : AlbumsUiEvent
+    data class ChangeThumbnail(val albumUUID: String, val thumbnailUri: Uri) : AlbumsUiEvent
 }

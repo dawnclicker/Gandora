@@ -64,6 +64,10 @@ fun AlbumsScreen(viewModel: AlbumsViewModel) {
                 is AlbumsUiState.Content -> AlbumsContent(
                     content = uiState as AlbumsUiState.Content,
                     handleUiEvent = { viewModel.handleUiEvent(it) },
+                    onLoadAlbumPhotos = { viewModel.loadAlbumPhotos(it) },
+                    onAlbumChangeThumbnail = { albumId, uri ->
+                        viewModel.handleUiEvent(AlbumsUiEvent.ChangeThumbnail(albumId, uri))
+                    },
                     modifier = modifier,
                 )
             }

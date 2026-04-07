@@ -16,24 +16,42 @@
 
 package dev.leonlatsch.photok.gallery.components
 
+import android.net.Uri
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumItem
 import kotlin.math.abs
 
@@ -43,6 +61,8 @@ fun AlbumsGrid(
     onAlbumClicked: (String) -> Unit,
     onAlbumReordered: (Int, Int) -> Unit = { _, _ -> },
     onAlbumLongClick: (String) -> Unit = {},
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
+    onAlbumChangeThumbnail: (String, Uri) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     val gridState = rememberLazyGridState()
@@ -55,6 +75,34 @@ fun AlbumsGrid(
     var draggingAlbumId by remember { mutableStateOf<String?>(null) }
     var dragStartIndex by remember { mutableStateOf<Int?>(null) }
     var dragDistance by remember { mutableStateOf(0f) }
+    var showContextMenuForAlbumId by remember { mutableStateOf<String?>(null) }
+    var thumbnailSelectionAlbumId by remember { mutableStateOf<String?>(null) }
+    var thumbnailSelectionPhotos by remember { mutableStateOf<List<PhotoTile>>(emptyList()) }
+    var thumbnailSelectionLoading by remember { mutableStateOf(false) }
+    var thumbnailSelectionError by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(thumbnailSelectionAlbumId) {
+        val albumId = thumbnailSelectionAlbumId
+        if (albumId == null) {
+            thumbnailSelectionPhotos = emptyList()
+            thumbnailSelectionLoading = false
+            thumbnailSelectionError = false
+            return@LaunchedEffect
+        }
+
+        thumbnailSelectionLoading = true
+        thumbnailSelectionError = false
+        thumbnailSelectionPhotos = try {
+            onLoadAlbumPhotos(albumId)
+        } catch (e: Exception) {
+            thumbnailSelectionError = true
+            emptyList()
+        } finally {
+            thumbnailSelectionLoading = false
+        }
+    }
+
     val dragThreshold = with(LocalDensity.current) { 8.dp.toPx() }
     val haptic = LocalHapticFeedback.current
 
@@ -109,7 +157,7 @@ fun AlbumsGrid(
                         val startIndex = dragStartIndex
                         val endIndex = albumId?.let { id -> visibleAlbums.indexOfFirst { it.id == id } }
                         if (albumId != null && dragDistance < dragThreshold) {
-                            onAlbumLongClick(albumId)
+                            showContextMenuForAlbumId = albumId
                         } else if (
                             albumId != null &&
                             startIndex != null &&
@@ -141,6 +189,95 @@ fun AlbumsGrid(
                 modifier = Modifier.animateItem(),
                 isDragging = album.id == draggingAlbumId,
             )
+        }
+    }
+
+    if (showContextMenuForAlbumId != null) {
+        AlertDialog(
+            onDismissRequest = { showContextMenuForAlbumId = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    thumbnailSelectionAlbumId = showContextMenuForAlbumId
+                    showContextMenuForAlbumId = null
+                }) {
+                    Text(stringResource(R.string.album_change_thumbnail))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showContextMenuForAlbumId = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            },
+            title = {
+                Text(stringResource(R.string.album_thumbnail_menu_title))
+            },
+            text = {
+                Text(stringResource(R.string.album_thumbnail_menu_description))
+            }
+        )
+    }
+
+    if (thumbnailSelectionAlbumId != null) {
+        Dialog(onDismissRequest = { thumbnailSelectionAlbumId = null }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.album_thumbnail_picker_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (thumbnailSelectionLoading) {
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (thumbnailSelectionError) {
+                        Text(stringResource(R.string.album_thumbnail_picker_error))
+                    } else if (thumbnailSelectionPhotos.isEmpty()) {
+                        Text(stringResource(R.string.album_thumbnail_picker_empty))
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(360.dp),
+                        ) {
+                            items(thumbnailSelectionPhotos, key = { it.uuid }) { photoTile ->
+                                GalleryPhotoTile(
+                                    photoTile = photoTile,
+                                    multiSelectionActive = false,
+                                    selected = false,
+                                    onClicked = {
+                                        val albumId = thumbnailSelectionAlbumId
+                                        if (albumId != null) {
+                                            onAlbumChangeThumbnail(albumId, albumThumbnailUri(photoTile))
+                                        }
+                                        thumbnailSelectionAlbumId = null
+                                    },
+                                    onLongPress = {},
+                                    modifier = Modifier.animateItem(),
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    TextButton(onClick = { thumbnailSelectionAlbumId = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                }
+            }
         }
     }
 }

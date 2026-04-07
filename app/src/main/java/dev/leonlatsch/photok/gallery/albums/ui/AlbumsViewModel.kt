@@ -16,12 +16,15 @@
 
 package dev.leonlatsch.photok.gallery.albums.ui
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.leonlatsch.photok.gallery.albums.domain.AlbumRepository
 import dev.leonlatsch.photok.gallery.albums.ui.compose.AlbumsUiState
 import dev.leonlatsch.photok.gallery.albums.ui.navigation.AlbumsNavigationEvent
+import dev.leonlatsch.photok.gallery.components.PhotoTile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,7 +63,25 @@ class AlbumsViewModel @Inject constructor(
                     event.uuid
                 )
             )
+            is AlbumsUiEvent.ChangeThumbnail -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    albumsRepositoryImpl.updateAlbumThumbnail(
+                        albumUuid = event.albumUUID,
+                        customThumbnailUri = event.thumbnailUri.toString(),
+                    )
+                }
+            }
         }
     }
+
+    suspend fun loadAlbumPhotos(albumUuid: String): List<PhotoTile> =
+        albumsRepositoryImpl.getPhotosForAlbum(albumUuid, false).map { photo ->
+            PhotoTile(
+                fileName = photo.fileName,
+                type = photo.type,
+                uuid = photo.uuid,
+                isFavorite = photo.isFavorite,
+            )
+        }
 }
 

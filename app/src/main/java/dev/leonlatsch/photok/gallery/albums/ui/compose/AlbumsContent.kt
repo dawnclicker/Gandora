@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import dev.leonlatsch.photok.R
 import dev.leonlatsch.photok.gallery.albums.ui.AlbumsUiEvent
 import dev.leonlatsch.photok.gallery.components.AlbumsGrid
+import dev.leonlatsch.photok.gallery.components.PhotoTile
 import dev.leonlatsch.photok.ui.components.MagicFab
 import dev.leonlatsch.photok.ui.theme.AppTheme
 
@@ -34,6 +35,8 @@ fun AlbumsContent(
     content: AlbumsUiState.Content,
     handleUiEvent: (AlbumsUiEvent) -> Unit,
     modifier: Modifier = Modifier,
+    onLoadAlbumPhotos: suspend (String) -> List<PhotoTile> = { emptyList() },
+    onAlbumChangeThumbnail: (String, android.net.Uri) -> Unit = { _, _ -> },
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -41,6 +44,8 @@ fun AlbumsContent(
         AlbumsGrid(
             albums = content.albums,
             onAlbumClicked = { handleUiEvent(AlbumsUiEvent.OpenAlbum(it)) },
+            onLoadAlbumPhotos = onLoadAlbumPhotos,
+            onAlbumChangeThumbnail = onAlbumChangeThumbnail,
             modifier = Modifier.fillMaxWidth(),
         )
 
